@@ -1,3 +1,3 @@
-vendor
-request.http
+vendor/
+client/
 .env

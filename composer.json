@@ -1,4 +1,7 @@
 {
+    "name": "krisnaajiep/slim-todo-list-api",
+    "description": "A simple todo list API",
+    "version": "dev-main",
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.7",
