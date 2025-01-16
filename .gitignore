@@ -4,3 +4,4 @@ vendor/
 client/
 .env
 .cz.toml
+.devdbrc
