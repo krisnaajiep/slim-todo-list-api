@@ -5,3 +5,4 @@ client/
 .env
 .cz.toml
 .devdbrc
+*.cache
