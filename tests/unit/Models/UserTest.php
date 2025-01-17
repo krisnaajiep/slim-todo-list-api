@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Database;
 use App\Models\User;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
+use Test\Unit\DataProviders\UserDataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 
 final class UserTest extends TestCase
 {
@@ -26,21 +27,5 @@ final class UserTest extends TestCase
         $this->assertArrayHasKey('id', $result);
         $this->assertEquals($data['name'], $result['name']);
         $this->assertCount(2, $result);
-    }
-}
-
-final class UserDataProvider
-{
-    public static function creationProvider(): array
-    {
-        return [
-            'created data' => [
-                [
-                    'name' => 'John Doe',
-                    'email' => 'john@doe.com',
-                    'password' => 'password'
-                ]
-            ]
-        ];
     }
 }
