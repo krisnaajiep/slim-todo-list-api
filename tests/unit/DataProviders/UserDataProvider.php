@@ -16,4 +16,32 @@ final class UserDataProvider
             ]
         ];
     }
+
+    public static function validRegistrationProvider(): array
+    {
+        return [
+            'valid registration data' => [
+                [
+                    'name' => 'John Doe',
+                    'email' => 'john@doe.com',
+                    'password' => 'password',
+                    'password_confirmation' => 'password'
+                ],
+            ],
+        ];
+    }
+
+    public static function invalidRegistrationProvider(): array
+    {
+        return [
+            'invalid registration data' => [
+                [
+                    'name' => '',
+                    'email' => 'johndoe.com',
+                    'password' => 'password',
+                    'password_confirmation' => 'drowsapp'
+                ],
+            ],
+        ];
+    }
 }
