@@ -60,10 +60,21 @@ final class UserDataProvider
     public static function invalidAuthenticationProvider(): array
     {
         return [
-            'invalid password' => [
+            'wrong password' => [
                 [
                     'email' => 'john@doe.com',
                     'password' => 'drowsapp',
+                ],
+            ],
+        ];
+    }
+
+    public static function invalidLoginProvider(): array
+    {
+        return [
+            'invalid credentials' => [
+                [
+                    'email' => 'johndoe.com',
                 ],
             ],
         ];
