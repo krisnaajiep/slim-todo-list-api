@@ -24,8 +24,54 @@ final class UserTest extends TestCase
     {
         $result = $this->user->create($data);
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertEquals($data['name'], $result['name']);
+        $this->assertIsArray($result);
         $this->assertCount(2, $result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('name', $result);
+        $this->assertSame($data['name'], $result['name']);
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'validAuthenticationProvider')]
+    public function testAuthenticated(array $credentials): void
+    {
+        $data = (new UserDataProvider())->validRegistrationProvider()['valid registration data'][0];
+        $data['id'] = rand(1, 100);
+        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        $this->db->expects($this->once())
+            ->method('fetch')
+            ->willReturn($data);
+
+        $this->db->expects($this->once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $result = $this->user->authenticate($credentials);
+
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('name', $result);
+        $this->assertSame($data['name'], $result['name']);
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'invalidAuthenticationProvider')]
+    public function testUnauthenticated(array $credentials): void
+    {
+        $data = (new UserDataProvider())->validRegistrationProvider()['valid registration data'][0];
+        $data['id'] = rand(1, 100);
+        $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        $this->db->expects($this->once())
+            ->method('fetch')
+            ->willReturn($data);
+
+        $this->db->expects($this->once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $this->expectException(\Exception::class);
+
+        $this->user->authenticate($credentials);
     }
 }
