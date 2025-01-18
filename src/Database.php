@@ -32,6 +32,11 @@ class Database
         }
     }
 
+    public function exec(string $query): int|false
+    {
+        return $this->dbh->exec($query);
+    }
+
     public function prepare(string $query): \PDOStatement
     {
         $this->sth = $this->dbh->prepare($query);
