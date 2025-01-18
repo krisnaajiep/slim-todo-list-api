@@ -44,4 +44,28 @@ final class UserDataProvider
             ],
         ];
     }
+
+    public static function validAuthenticationProvider(): array
+    {
+        return [
+            'valid credentials' => [
+                [
+                    'email' => 'john@doe.com',
+                    'password' => 'password',
+                ],
+            ],
+        ];
+    }
+
+    public static function invalidAuthenticationProvider(): array
+    {
+        return [
+            'invalid password' => [
+                [
+                    'email' => 'john@doe.com',
+                    'password' => 'drowsapp',
+                ],
+            ],
+        ];
+    }
 }
