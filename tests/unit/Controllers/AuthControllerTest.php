@@ -44,6 +44,8 @@ final class AuthControllerTest extends TestCase
 
         $result = json_decode((string)$response->getBody(), true);
 
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
         $this->assertArrayHasKey('access_token', $result);
         $this->assertArrayHasKey('expires_in', $result);
         $this->assertSame(201, $response->getStatusCode());
@@ -60,12 +62,14 @@ final class AuthControllerTest extends TestCase
 
         $result = json_decode((string)$response->getBody(), true);
 
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
         $this->assertArrayHasKey('errors', $result);
         $this->assertSame(400, $response->getStatusCode());
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'validRegistrationProvider')]
-    public function testNotRegistratedDuplicateEmail(array $data): void
+    public function testDuplicateEmailNotRegistrated(array $data): void
     {
         $this->request->expects($this->once())
             ->method('getParsedBody')
@@ -79,8 +83,76 @@ final class AuthControllerTest extends TestCase
 
         $result = json_decode((string)$response->getBody(), true);
 
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
         $this->assertArrayHasKey('message', $result);
         $this->assertSame('Email already exists', $result['message']);
         $this->assertSame(409, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'validAuthenticationProvider')]
+    public function testLoginSuccess(array $credentials): void
+    {
+        $user = [
+            'id' => rand(1, 100),
+            'name' => 'John Doe'
+        ];
+
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($credentials);
+
+        $this->model->expects($this->once())
+            ->method('authenticate')
+            ->willReturn($user);
+
+        $response = $this->controller->login($this->request, $this->response, []);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'invalidLoginProvider')]
+    public function testLoginCredetialsInvalid(array $credentials): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($credentials);
+
+        $response = $this->controller->login($this->request, $this->response, []);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('errors', $result);
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'invalidAuthenticationProvider')]
+    public function testLoginFailed(array $credentials): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($credentials);
+
+        $this->model->expects($this->once())
+            ->method('authenticate')
+            ->willThrowException(new Exception('Invalid email or password.', 401));
+
+        $response = $this->controller->login($this->request, $this->response, []);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey('message', $result);
+        $this->assertSame('Invalid email or password.', $result['message']);
+        $this->assertSame(401, $response->getStatusCode());
     }
 }
