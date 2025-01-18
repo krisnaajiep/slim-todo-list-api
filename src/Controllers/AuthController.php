@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Validators\UserLoginValidator;
 use App\Validators\UserRegisterValidator;
 use Firebase\JWT\JWT;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -41,6 +42,35 @@ class AuthController
 
                 $response->getBody()->write(json_encode($message));
                 return $response->withStatus(409);
+            } else {
+                throw new HttpInternalServerErrorException($request);
+            }
+        }
+    }
+
+    public function login(Request $request, Response $response, array $args): Response
+    {
+        $data = $request->getParsedBody();
+
+        $validator = UserLoginValidator::validate($data);
+        if ($validator->hasValidationErrors()) {
+            $errors = ['errors' => $validator->getValidationErrors()];
+
+            $response->getBody()->write(json_encode($errors));
+            return $response->withStatus(400);
+        }
+
+        try {
+            $user = $this->model->authenticate($data);
+
+            $response->getBody()->write(json_encode($this->respondWithToken($user)));
+            return $response;
+        } catch (\Throwable $th) {
+            if ($th->getCode() == 401) {
+                $message = ['message' => $th->getMessage()];
+
+                $response->getBody()->write(json_encode($message));
+                return $response->withStatus(401);
             } else {
                 throw new HttpInternalServerErrorException($request);
             }

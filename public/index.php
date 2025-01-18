@@ -50,5 +50,6 @@ $app->get('/', function (Request $request, Response $response, $args) {
 });
 
 $app->post('/register', [AuthController::class, 'register']);
+$app->post('/login', [AuthController::class, 'login']);
 
 $app->run();
