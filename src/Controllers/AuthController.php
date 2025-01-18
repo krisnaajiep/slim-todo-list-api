@@ -21,7 +21,7 @@ class AuthController
 
     public function register(Request $request, Response $response, array $args): Response
     {
-        $data = $request->getParsedBody();
+        $data = $request->getParsedBody() ?? [];
 
         $validator = UserRegisterValidator::validate($data);
         if ($validator->hasValidationErrors()) {
@@ -50,7 +50,7 @@ class AuthController
 
     public function login(Request $request, Response $response, array $args): Response
     {
-        $data = $request->getParsedBody();
+        $data = $request->getParsedBody() ?? [];
 
         $validator = UserLoginValidator::validate($data);
         if ($validator->hasValidationErrors()) {
