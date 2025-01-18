@@ -3,10 +3,11 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Validators\UserRegisterValidator;
 use Firebase\JWT\JWT;
-use KrisnaAjieP\PHPValidator\Validator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Exception\HttpInternalServerErrorException;
 
 class AuthController
 {
@@ -14,20 +15,14 @@ class AuthController
 
     public function __construct(User $model = null)
     {
-        $this->model = $model;
+        $this->model = $model ?? new User();
     }
 
     public function register(Request $request, Response $response, array $args): Response
     {
         $data = $request->getParsedBody();
 
-        $validator = Validator::setRules($data, [
-            'name' => ['required', 'alpha', 'min_length:2', 'max_length:50'],
-            'email' => ['required', 'email', 'max_length:254'],
-            'password' => ['required', 'min_length:8', 'max_length:255'],
-            'password_confirmation' => ['required', 'match:password'],
-        ]);
-
+        $validator = UserRegisterValidator::validate($data);
         if ($validator->hasValidationErrors()) {
             $errors = ['errors' => $validator->getValidationErrors()];
 
@@ -35,10 +30,21 @@ class AuthController
             return $response->withStatus(400);
         }
 
-        $user = $this->model->create($data);
+        try {
+            $user = $this->model->create($data);
 
-        $response->getBody()->write(json_encode($this->respondWithToken($user)));
-        return $response->withStatus(201);
+            $response->getBody()->write(json_encode($this->respondWithToken($user)));
+            return $response->withStatus(201);
+        } catch (\Throwable $th) {
+            if ($th->getCode() == 409) {
+                $message = ['message' => $th->getMessage()];
+
+                $response->getBody()->write(json_encode($message));
+                return $response->withStatus(409);
+            } else {
+                throw new HttpInternalServerErrorException($request);
+            }
+        }
     }
 
     private function respondWithToken(array $user = [])

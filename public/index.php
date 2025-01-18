@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\AuthController;
 use Dotenv\Dotenv;
 use Slim\Factory\AppFactory;
 use Middlewares\TrailingSlash;
@@ -47,5 +48,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write(json_encode(["Foo" => "Bar"]));
     return $response;
 });
+
+$app->post('/register', [AuthController::class, 'register']);
 
 $app->run();

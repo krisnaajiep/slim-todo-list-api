@@ -6,7 +6,6 @@ use App\Models\User;
 use Slim\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use App\Controllers\AuthController;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Test\Unit\DataProviders\UserDataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
@@ -63,5 +62,25 @@ final class AuthControllerTest extends TestCase
 
         $this->assertArrayHasKey('errors', $result);
         $this->assertSame(400, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(UserDataProvider::class, 'validRegistrationProvider')]
+    public function testNotRegistratedDuplicateEmail(array $data): void
+    {
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($data);
+
+        $this->model->expects($this->once())
+            ->method('create')
+            ->willThrowException(new Exception('Email already exists', 409));
+
+        $response = $this->controller->register($this->request, $this->response, []);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertArrayHasKey('message', $result);
+        $this->assertSame('Email already exists', $result['message']);
+        $this->assertSame(409, $response->getStatusCode());
     }
 }
