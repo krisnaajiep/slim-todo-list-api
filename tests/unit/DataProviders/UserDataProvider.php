@@ -7,7 +7,7 @@ final class UserDataProvider
     public static function creationProvider(): array
     {
         return [
-            'created data' => [
+            'valid user data' => [
                 [
                     'name' => 'John Doe',
                     'email' => 'john@doe.com',
@@ -41,6 +41,16 @@ final class UserDataProvider
                     'password' => 'password',
                     'password_confirmation' => 'drowsapp'
                 ],
+                'invalid registration data'
+            ],
+            'duplicate email' => [
+                [
+                    'name' => 'John Doe',
+                    'email' => 'john@doe.com',
+                    'password' => 'password',
+                    'password_confirmation' => 'password'
+                ],
+                'duplicate email'
             ],
         ];
     }
@@ -60,22 +70,18 @@ final class UserDataProvider
     public static function invalidAuthenticationProvider(): array
     {
         return [
-            'wrong password' => [
+            'incorrent password' => [
                 [
                     'email' => 'john@doe.com',
                     'password' => 'drowsapp',
                 ],
+                'incorrect password'
             ],
-        ];
-    }
-
-    public static function invalidLoginProvider(): array
-    {
-        return [
             'invalid credentials' => [
                 [
                     'email' => 'johndoe.com',
                 ],
+                'invalid credentials'
             ],
         ];
     }

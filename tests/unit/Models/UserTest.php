@@ -20,7 +20,7 @@ final class UserTest extends TestCase
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'creationProvider')]
-    public function testCreated(array $data): void
+    public function testCreatesUser(array $data): void
     {
         $result = $this->user->create($data);
 
@@ -32,7 +32,7 @@ final class UserTest extends TestCase
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'validAuthenticationProvider')]
-    public function testAuthenticated(array $credentials): void
+    public function testAuthenticatesUser(array $credentials): void
     {
         $data = (new UserDataProvider())->validRegistrationProvider()['valid registration data'][0];
         $data['id'] = rand(1, 100);
@@ -56,8 +56,12 @@ final class UserTest extends TestCase
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'invalidAuthenticationProvider')]
-    public function testUnauthenticated(array $credentials): void
+    public function testFailsToAuthenticateUser(array $credentials, string $case): void
     {
+        if ($case === 'invalid credentials') {
+            $this->markTestSkipped('Invalid credentials is not for this test');
+        }
+
         $data = (new UserDataProvider())->validRegistrationProvider()['valid registration data'][0];
         $data['id'] = rand(1, 100);
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);

@@ -25,7 +25,7 @@ final class AuthControllerTest extends TestCase
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'validRegistrationProvider')]
-    public function testRegistrated(array $data): void
+    public function testRegistersSuccessfully(array $data): void
     {
         $created = [
             'id' => rand(1, 100),
@@ -52,11 +52,17 @@ final class AuthControllerTest extends TestCase
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'invalidRegistrationProvider')]
-    public function testNotRegistrated(array $data): void
+    public function testFailsToRegister(array $data, string $case): void
     {
         $this->request->expects($this->once())
             ->method('getParsedBody')
             ->willReturn($data);
+
+        if ($case === 'duplicate email') {
+            $this->model->expects($this->once())
+                ->method('create')
+                ->willThrowException(new Exception('Email already exists', 409));
+        }
 
         $response = $this->controller->register($this->request, $this->response, []);
 
@@ -64,34 +70,19 @@ final class AuthControllerTest extends TestCase
 
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
-        $this->assertArrayHasKey('errors', $result);
-        $this->assertSame(400, $response->getStatusCode());
-    }
 
-    #[DataProviderExternal(UserDataProvider::class, 'validRegistrationProvider')]
-    public function testDuplicateEmailNotRegistrated(array $data): void
-    {
-        $this->request->expects($this->once())
-            ->method('getParsedBody')
-            ->willReturn($data);
-
-        $this->model->expects($this->once())
-            ->method('create')
-            ->willThrowException(new Exception('Email already exists', 409));
-
-        $response = $this->controller->register($this->request, $this->response, []);
-
-        $result = json_decode((string)$response->getBody(), true);
-
-        $this->assertIsArray($result);
-        $this->assertCount(1, $result);
-        $this->assertArrayHasKey('message', $result);
-        $this->assertSame('Email already exists', $result['message']);
-        $this->assertSame(409, $response->getStatusCode());
+        if ($case === 'invalid registration data') {
+            $this->assertArrayHasKey('errors', $result);
+            $this->assertSame(400, $response->getStatusCode());
+        } else {
+            $this->assertArrayHasKey('message', $result);
+            $this->assertSame('Email already exists', $result['message']);
+            $this->assertSame(409, $response->getStatusCode());
+        }
     }
 
     #[DataProviderExternal(UserDataProvider::class, 'validAuthenticationProvider')]
-    public function testLoginSuccess(array $credentials): void
+    public function testLogInSuccessfully(array $credentials): void
     {
         $user = [
             'id' => rand(1, 100),
@@ -117,33 +108,18 @@ final class AuthControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    #[DataProviderExternal(UserDataProvider::class, 'invalidLoginProvider')]
-    public function testLoginCredetialsInvalid(array $credentials): void
-    {
-        $this->request->expects($this->once())
-            ->method('getParsedBody')
-            ->willReturn($credentials);
-
-        $response = $this->controller->login($this->request, $this->response, []);
-
-        $result = json_decode((string)$response->getBody(), true);
-
-        $this->assertIsArray($result);
-        $this->assertCount(1, $result);
-        $this->assertArrayHasKey('errors', $result);
-        $this->assertSame(400, $response->getStatusCode());
-    }
-
     #[DataProviderExternal(UserDataProvider::class, 'invalidAuthenticationProvider')]
-    public function testLoginFailed(array $credentials): void
+    public function testFailsToLogIn(array $credentials, string $case): void
     {
         $this->request->expects($this->once())
             ->method('getParsedBody')
             ->willReturn($credentials);
 
-        $this->model->expects($this->once())
-            ->method('authenticate')
-            ->willThrowException(new Exception('Invalid email or password.', 401));
+        if ($case === 'incorrect password') {
+            $this->model->expects($this->once())
+                ->method('authenticate')
+                ->willThrowException(new Exception('Invalid email or password.', 401));
+        }
 
         $response = $this->controller->login($this->request, $this->response, []);
 
@@ -151,8 +127,14 @@ final class AuthControllerTest extends TestCase
 
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
-        $this->assertArrayHasKey('message', $result);
-        $this->assertSame('Invalid email or password.', $result['message']);
-        $this->assertSame(401, $response->getStatusCode());
+
+        if ($case === 'invalid credentials') {
+            $this->assertArrayHasKey('errors', $result);
+            $this->assertSame(400, $response->getStatusCode());
+        } else {
+            $this->assertArrayHasKey('message', $result);
+            $this->assertSame('Invalid email or password.', $result['message']);
+            $this->assertSame(401, $response->getStatusCode());
+        }
     }
 }
