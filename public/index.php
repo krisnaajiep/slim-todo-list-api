@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\AuthController;
+use App\Controllers\TodoController;
 use Dotenv\Dotenv;
 use Slim\Factory\AppFactory;
 use Middlewares\TrailingSlash;
@@ -11,6 +12,7 @@ use App\Middlewares\JsonBodyParserMiddleware;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -51,5 +53,9 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->post('/register', [AuthController::class, 'register']);
 $app->post('/login', [AuthController::class, 'login']);
+
+$app->group('/todos', function (RouteCollectorProxy $group) {
+    $group->post('', [TodoController::class, 'create']);
+});
 
 $app->run();
