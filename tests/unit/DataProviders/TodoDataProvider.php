@@ -16,4 +16,17 @@ final class TodoDataProvider
             ]
         ];
     }
+
+    public static function invalidCreationProvider(): array
+    {
+        return [
+            'invalid todo data' => [
+                [
+                    'user_id' => rand(1, 100),
+                    'title' => 'Gr',
+                    'description' => ''
+                ]
+            ]
+        ];
+    }
 }
