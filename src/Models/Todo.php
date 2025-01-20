@@ -60,15 +60,7 @@ class Todo
     public function update(int $id, array $data): array
     {
         try {
-            $this->db->prepare("SELECT user_id FROM $this->table WHERE id = :id");
-            $this->db->bindParam(':id', $id);
-            $this->db->execute();
-
-            if ($this->db->rowCount() === 0) {
-                throw new \PDOException('Todo not found.', 404);
-            }
-
-            $todo = $this->db->fetch();
+            $todo = $this->getUserIdbyId($id);
 
             if ($data['user_id'] !== $todo['user_id']) {
                 throw new \PDOException("Forbidden", 403);
@@ -98,15 +90,7 @@ class Todo
     public function delete(int $id, int $user_id): bool
     {
         try {
-            $this->db->prepare("SELECT user_id FROM $this->table WHERE id = :id");
-            $this->db->bindParam(':id', $id);
-            $this->db->execute();
-
-            if ($this->db->rowCount() === 0) {
-                throw new \PDOException('Todo not found.', 404);
-            }
-
-            $todo = $this->db->fetch();
+            $todo = $this->getUserIdbyId($id);
 
             if ($user_id !== $todo['user_id']) {
                 throw new \PDOException("Forbidden", 403);
@@ -125,5 +109,18 @@ class Todo
                 throw new \Exception("Internal server error", 500);
             }
         }
+    }
+
+    private function getUserIdbyId(int $id): array
+    {
+        $this->db->prepare("SELECT user_id FROM $this->table WHERE id = :id");
+        $this->db->bindParam(':id', $id);
+        $this->db->execute();
+
+        if ($this->db->rowCount() === 0) {
+            throw new \PDOException('Todo not found.', 404);
+        }
+
+        return $this->db->fetch();
     }
 }
