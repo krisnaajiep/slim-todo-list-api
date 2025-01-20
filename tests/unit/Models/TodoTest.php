@@ -30,4 +30,54 @@ final class TodoTest extends TestCase
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
     }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'modificationProvider')]
+    public function testUpdatesTodo(array $data, int $id)
+    {
+        $this->db->expects($this->once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $this->db->expects($this->once())
+            ->method('fetch')
+            ->willReturn(['user_id' => $data['user_id']]);
+
+        $result = $this->todo->update($id, $data);
+
+        $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('title', $result);
+        $this->assertArrayHasKey('description', $result);
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'invalidModificationProvider')]
+    public function testFailsToUpdateTodo(array $data, int $id)
+    {
+        if (!$id) {
+            $this->markTestSkipped('Invalid todo data is not for this test');
+        }
+
+        if ($id === 2) {
+            $rowCount = 0;
+        } else {
+            $rowCount = 1;
+        }
+
+        $this->db->expects($this->once())
+            ->method('rowCount')
+            ->willReturn($rowCount);
+
+        if ($id === 2) {
+            $this->expectExceptionCode(404);
+        } else {
+            $this->db->expects($this->once())
+                ->method('fetch')
+                ->willReturn(['user_id' => $id]);
+
+            $this->expectExceptionCode(403);
+        }
+
+        $this->todo->update($id, $data);
+    }
 }
