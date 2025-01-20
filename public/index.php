@@ -7,11 +7,13 @@ use Slim\Factory\AppFactory;
 use Middlewares\TrailingSlash;
 use App\Handlers\ShutdownHandler;
 use App\Handlers\HttpErrorHandler;
+use App\Middlewares\AuthenticationMiddleware;
 use App\Middlewares\ReturningJsonMiddleware;
 use App\Middlewares\JsonBodyParserMiddleware;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -56,6 +58,6 @@ $app->post('/login', [AuthController::class, 'login']);
 
 $app->group('/todos', function (RouteCollectorProxy $group) {
     $group->post('', [TodoController::class, 'create']);
-});
+})->add(new AuthenticationMiddleware(new ResponseFactory()));
 
 $app->run();
