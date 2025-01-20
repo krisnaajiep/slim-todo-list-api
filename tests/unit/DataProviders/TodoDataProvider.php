@@ -31,6 +31,21 @@ final class TodoDataProvider
         ];
     }
 
+    public static function deletionProvider(): array
+    {
+        return [
+            'valid todo id' => [0, 0]
+        ];
+    }
+
+    public static function invalidDeletionProvider(): array
+    {
+        return [
+            'invalid id throws 404' => [2, 0],
+            'unauthorized user id throws 403' => [0, 1]
+        ];
+    }
+
     public static function invalidModificationProvider(): array
     {
         return [
