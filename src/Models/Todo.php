@@ -57,11 +57,42 @@ class Todo
         return [];
     }
 
-    public function update(array $data): array
+    public function update(int $id, array $data): array
     {
-        // Write Code
+        try {
+            $this->db->prepare("SELECT user_id FROM $this->table WHERE id = :id");
+            $this->db->bindParam(':id', $id);
+            $this->db->execute();
 
-        return [];
+            if ($this->db->rowCount() === 0) {
+                throw new \PDOException('Todo not found.', 404);
+            }
+
+            $todo = $this->db->fetch();
+
+            if ($data['user_id'] !== $todo['user_id']) {
+                throw new \PDOException("Forbidden", 403);
+            }
+
+            $this->db->prepare("UPDATE $this->table SET title = :title, description = :description WHERE id = :id");
+            $this->db->bindParam(':title', $data['title']);
+            $this->db->bindParam(':description', $data['description']);
+            $this->db->bindParam(':id', $id);
+
+            $this->db->execute();
+
+            return [
+                'id' => $id,
+                'title' => $data['title'],
+                'description' => $data['description']
+            ];
+        } catch (\PDOException $th) {
+            if ($th->getCode() == 404 || $th->getCode() == 403) {
+                throw new \Exception($th->getMessage(), $th->getCode());
+            } else {
+                throw new \Exception('Internal server error', 500);
+            }
+        }
     }
 
     public function delete(int $id): bool
