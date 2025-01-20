@@ -58,6 +58,7 @@ $app->post('/login', [AuthController::class, 'login']);
 
 $app->group('/todos', function (RouteCollectorProxy $group) {
     $group->post('', [TodoController::class, 'create']);
+    $group->put('/{id}', [TodoController::class, 'update']);
 })->add(new AuthenticationMiddleware(new ResponseFactory()));
 
 $app->run();
