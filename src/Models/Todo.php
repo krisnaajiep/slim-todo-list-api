@@ -95,10 +95,35 @@ class Todo
         }
     }
 
-    public function delete(int $id): bool
+    public function delete(int $id, int $user_id): bool
     {
-        // Write Code
+        try {
+            $this->db->prepare("SELECT user_id FROM $this->table WHERE id = :id");
+            $this->db->bindParam(':id', $id);
+            $this->db->execute();
 
-        return true;
+            if ($this->db->rowCount() === 0) {
+                throw new \PDOException('Todo not found.', 404);
+            }
+
+            $todo = $this->db->fetch();
+
+            if ($user_id !== $todo['user_id']) {
+                throw new \PDOException("Forbidden", 403);
+            }
+
+            $this->db->prepare("DELETE FROM $this->table WHERE id = :id");
+            $this->db->bindParam(':id', $id);
+
+            $result = $this->db->execute();
+
+            return $result;
+        } catch (\PDOException $th) {
+            if ($th->getCode() != 500) {
+                throw new \Exception($th->getMessage(), $th->getCode());
+            } else {
+                throw new \Exception("Internal server error", 500);
+            }
+        }
     }
 }
