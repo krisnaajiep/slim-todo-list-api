@@ -81,4 +81,72 @@ final class TodoControllerTest extends TestCase
         $this->assertArrayHasKey('errors', $result);
         $this->assertSame(400, $response->getStatusCode());
     }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'modificationProvider')]
+    public function testUpdateSuccessfully(array $data, int $id): void
+    {
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => $data['user_id']
+            ]);
+
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($data);
+
+        $this->model->expects($this->once())
+            ->method('update')
+            ->with($this->identicalTo($id), $this->identicalTo($data))
+            ->willReturn([
+                'id' => $id,
+                'title' => $data['title'],
+                'description' => $data['description']
+            ]);
+
+        $response = $this->controller->update($this->request, $this->response, ['id' => $id]);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(3, $result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('title', $result);
+        $this->assertArrayHasKey('description', $result);
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'invalidModificationProvider')]
+    public function testFailsToUpdate(array $data, $id): void
+    {
+        $code = $id === 2 ? 404 : ($id === 1 ? 403 : 400);
+
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => 0
+            ]);
+
+        $this->request->expects($this->once())
+            ->method('getParsedBody')
+            ->willReturn($data);
+
+        if ($code !== 400) {
+            $this->model->expects($this->once())
+                ->method('update')
+                ->with(
+                    $this->identicalTo($id),
+                    $this->identicalTo($data)
+                )->willThrowException(new \Exception('', $code));
+        }
+
+        $response = $this->controller->update($this->request, $this->response, ['id' => $id]);
+
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertArrayHasKey($code !== 400 ? 'message' : 'errors', $result);
+        $this->assertSame($code, $response->getStatusCode());
+    }
 }

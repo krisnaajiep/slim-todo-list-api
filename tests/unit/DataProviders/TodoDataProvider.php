@@ -50,6 +50,14 @@ final class TodoDataProvider
                 ],
                 1
             ],
+            'invalid todo data' => [
+                [
+                    'user_id' => 0,
+                    'title' => 'Gr',
+                    'description' => ''
+                ],
+                0
+            ]
         ];
     }
 
