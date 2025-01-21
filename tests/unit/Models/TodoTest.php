@@ -155,11 +155,12 @@ final class TodoTest extends TestCase
     {
         $this->db->expects($this->once())
             ->method('fetch')
-            ->willReturn(count($data));
+            ->willReturn(['COUNT(*)' => count($data)]);
 
         $result = $this->todo->count($user_id);
 
-        $this->assertIsInt($result);
-        $this->assertSame(20, $result);
+        $this->assertIsArray($result);
+        $this->assertIsInt($result['COUNT(*)']);
+        $this->assertSame(20, $result['COUNT(*)']);
     }
 }

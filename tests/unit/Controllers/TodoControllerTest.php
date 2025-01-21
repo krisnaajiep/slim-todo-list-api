@@ -201,6 +201,10 @@ final class TodoControllerTest extends TestCase
                 'sub' => $user_id
             ]);
 
+        $this->model->expects($this->once())
+            ->method('count')
+            ->willReturn(['COUNT(*)' => count($data)]);
+
         $this->request->expects($this->once())
             ->method('getQueryParams')
             ->willReturn($query_params);
@@ -226,7 +230,7 @@ final class TodoControllerTest extends TestCase
             'data' => $new_data,
             'page' => $page,
             'limit' => $limit,
-            'total' => count($new_data)
+            'total' => count($data)
         ];
 
         $response = $this->controller->index($this->request, $this->response, []);
