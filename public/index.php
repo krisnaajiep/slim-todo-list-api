@@ -60,6 +60,7 @@ $app->group('/todos', function (RouteCollectorProxy $group) {
     $group->post('', [TodoController::class, 'create']);
     $group->put('/{id}', [TodoController::class, 'update']);
     $group->delete('/{id}', [TodoController::class, 'delete']);
+    $group->get('', [TodoController::class, 'index']);
 })->add(new AuthenticationMiddleware(new ResponseFactory()));
 
 $app->run();
