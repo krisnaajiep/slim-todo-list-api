@@ -43,11 +43,12 @@ class Todo
         ];
     }
 
-    public function get(): array
+    public function count(int $user_id): array
     {
-        // Write code
+        $this->db->prepare("SELECT COUNT(*) FROM $this->table WHERE user_id = :user_id");
+        $this->db->bindParam(':user_id', $user_id);
 
-        return [];
+        return $this->db->fetch();
     }
 
     public function getAll(int $user_id, int $start = 0, int $limit = 0): array
