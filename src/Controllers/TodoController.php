@@ -19,6 +19,31 @@ class TodoController
         $this->jwt = $jwt ?? new JWTHelper();
     }
 
+    public function index(Request $request, Response $response, array $args): Response
+    {
+        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $user_id = $decoded['sub'];
+
+        $count = $this->model->count($user_id)['COUNT(*)'];
+
+        $query_params = $request->getQueryParams();
+        $page = $query_params['page'] ?? 1;
+        $limit = $query_params['limit'] ?? $count;
+        $start = $page > 1 ? ($page * $limit) - $limit : 0;
+
+        $items = $this->model->getAll($user_id, $start, $limit);
+
+        $result = [
+            'data' => $items,
+            'page' => $page,
+            'limit' => $limit,
+            'total' => $count
+        ];
+
+        $response->getBody()->write(json_encode($result));
+        return $response;
+    }
+
     public function create(Request $request, Response $response, array $args): Response
     {
         $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
