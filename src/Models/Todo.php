@@ -43,9 +43,10 @@ class Todo
         ];
     }
 
-    public function count(int $user_id): array
+    public function get(int $id, int $user_id): array|false
     {
-        $this->db->prepare("SELECT COUNT(*) FROM $this->table WHERE user_id = :user_id");
+        $this->db->prepare("SELECT id, title, description, status, created_at, updated_at FROM $this->table WHERE id = :id AND user_id = :user_id");
+        $this->db->bindParam(':id', $id);
         $this->db->bindParam(':user_id', $user_id);
 
         return $this->db->fetch();
@@ -126,6 +127,14 @@ class Todo
         if ($this->db->rowCount() === 0) {
             throw new \PDOException('Todo not found.', 404);
         }
+
+        return $this->db->fetch();
+    }
+
+    public function count(int $user_id): array
+    {
+        $this->db->prepare("SELECT COUNT(*) FROM $this->table WHERE user_id = :user_id");
+        $this->db->bindParam(':user_id', $user_id);
 
         return $this->db->fetch();
     }
