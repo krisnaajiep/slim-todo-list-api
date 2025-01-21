@@ -45,16 +45,21 @@ class Todo
 
     public function get(): array
     {
-        // Write Code
+        // Write code
 
         return [];
     }
 
-    public function getAll(): array
+    public function getAll(int $user_id, int $start = 0, int $limit = 0): array
     {
-        // Write Code
+        $query = "SELECT * FROM $this->table WHERE user_id = :user_id LIMIT :start, :limit";
 
-        return [];
+        $this->db->prepare($query);
+        $this->db->bindParam(':user_id', $user_id);
+        $this->db->bindParam(':start', $start);
+        $this->db->bindParam(':limit', $limit);
+
+        return $this->db->fetchAll();
     }
 
     public function update(int $id, array $data): array
