@@ -69,4 +69,26 @@ class TodoController
             }
         }
     }
+
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+
+        try {
+            $result = $this->model->delete((int)$args['id'], $decoded['sub']);
+
+            if ($result) {
+                return $response->withStatus(204);
+            }
+        } catch (\Throwable $th) {
+            if ($th->getCode() != 500) {
+                $message = ['message' => $th->getMessage()];
+
+                $response->getBody()->write(json_encode($message));
+                return $response->withStatus($th->getCode());
+            } else {
+                throw new HttpInternalServerErrorException($request);
+            }
+        }
+    }
 }
