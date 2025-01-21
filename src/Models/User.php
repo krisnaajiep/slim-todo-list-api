@@ -59,8 +59,6 @@ class User
             $this->db->prepare("SELECT id, name, email, password FROM {$this->table} WHERE BINARY email = :email");
             $this->db->bindParam(':email', $data['email']);
 
-            $this->db->execute();
-
             $user = $this->db->fetch();
 
             if ($this->db->rowCount() === 0 || !password_verify($data['password'], $user['password'])) {
