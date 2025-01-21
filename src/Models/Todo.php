@@ -53,7 +53,7 @@ class Todo
 
     public function getAll(int $user_id, int $start = 0, int $limit = 0): array
     {
-        $query = "SELECT * FROM $this->table WHERE user_id = :user_id LIMIT :start, :limit";
+        $query = "SELECT id, title, description FROM $this->table WHERE user_id = :user_id LIMIT :start, :limit";
 
         $this->db->prepare($query);
         $this->db->bindParam(':user_id', $user_id);
