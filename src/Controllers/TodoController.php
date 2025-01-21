@@ -64,6 +64,25 @@ class TodoController
         return $response->withStatus(201);
     }
 
+    public function show(Request $request, Response $response, array $args): Response
+    {
+        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $user_id = $decoded['sub'];
+
+        $todo = $this->model->get($args['id'], $user_id);
+
+        if (!$todo) {
+            $code = 404;
+            $message = ['message' => 'Todo not found'];
+        } else {
+            $code = 200;
+            $message = $todo;
+        }
+
+        $response->getBody()->write(json_encode($message));
+        return $response->withStatus($code);
+    }
+
     public function update(Request $request, Response $response, array $args): Response
     {
         $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));

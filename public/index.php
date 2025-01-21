@@ -61,6 +61,7 @@ $app->group('/todos', function (RouteCollectorProxy $group) {
     $group->put('/{id}', [TodoController::class, 'update']);
     $group->delete('/{id}', [TodoController::class, 'delete']);
     $group->get('', [TodoController::class, 'index']);
+    $group->get('/{id}', [TodoController::class, 'show']);
 })->add(new AuthenticationMiddleware(new ResponseFactory()));
 
 $app->run();
