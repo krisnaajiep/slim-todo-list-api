@@ -18,7 +18,6 @@ class Todo
                          user_id INT(11) UNSIGNED NOT NULL,
                          title VARCHAR(100) NOT NULL,
                          description TEXT NOT NULL,
-                         status ENUM('todo', 'in progress', 'done') DEFAULT 'todo',
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
