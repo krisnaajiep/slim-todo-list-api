@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Database;
 use App\Models\Todo;
+use PhpParser\Builder\Property;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\MockObject\Runtime\PropertyHook;
 use PHPUnit\Framework\TestCase;
 use Test\Unit\DataProviders\TodoDataProvider;
 
@@ -124,16 +126,40 @@ final class TodoTest extends TestCase
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
-    public function testGetAllTodoItems(array $data, int $user_id): void
+    public function testGetAllTodoItems(array $data, array $query_params, int $user_id): void
     {
+        $page = $query_params['page'];
+        $limit = $query_params['limit'];
+
+        $start = $page > 1 ? ($page * $limit) - $limit : 0;
+        $new_data = [];
+
+        for ($i = $start; $i < $start + $limit; $i++) {
+            $new_data[] = $data[$i];
+        }
+
         $this->db->expects($this->once())
             ->method('fetchAll')
-            ->willReturn($data);
+            ->willReturn($new_data);
 
-        $result = $this->todo->getAll($user_id);
+        $result = $this->todo->getAll($user_id, $start, $limit);
 
         $this->assertIsArray($result);
-        $this->assertCount(count($data), $result);
-        $this->assertSame($data, $result);
+        $this->assertCount(10, $result);
+        $this->assertSame(11, $result[0]['id']);
+        $this->assertSame(20, $result[count($result) - 1]['id']);
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
+    public function testCountTodoItems(array $data, array $query_params, int $user_id): void
+    {
+        $this->db->expects($this->once())
+            ->method('fetch')
+            ->willReturn(count($data));
+
+        $result = $this->todo->count($user_id);
+
+        $this->assertIsInt($result);
+        $this->assertSame(20, $result);
     }
 }
