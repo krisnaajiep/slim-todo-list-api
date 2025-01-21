@@ -149,4 +149,46 @@ final class TodoControllerTest extends TestCase
         $this->assertArrayHasKey($code !== 400 ? 'message' : 'errors', $result);
         $this->assertSame($code, $response->getStatusCode());
     }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'deletionProvider')]
+    public function testDeleteSuccessfully(int $id, int $user_id): void
+    {
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => $user_id
+            ]);
+
+        $this->model->expects($this->once())
+            ->method('delete')
+            ->with(
+                $this->identicalTo($id),
+                $this->identicalTo($user_id)
+            )->willReturn(true);
+
+        $response = $this->controller->delete($this->request, $this->response, ['id' => $id]);
+        $this->assertSame(204, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'invalidDeletionProvider')]
+    public function testFailsToDelete(int $id, int $user_id): void
+    {
+        $code = $id === 2 ? 404 : 403;
+
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => $user_id
+            ]);
+
+        $this->model->expects($this->once())
+            ->method('delete')
+            ->with(
+                $this->identicalTo($id),
+                $this->identicalTo($user_id)
+            )->willThrowException(new \Exception('', $code));
+
+        $response = $this->controller->delete($this->request, $this->response, ['id' => $id]);
+        $this->assertSame($code, $response->getStatusCode());
+    }
 }
