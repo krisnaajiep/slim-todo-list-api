@@ -122,4 +122,18 @@ final class TodoTest extends TestCase
 
         $this->todo->delete($id, $user_id);
     }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
+    public function testGetAllTodoItems(array $data, int $user_id): void
+    {
+        $this->db->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn($data);
+
+        $result = $this->todo->getAll($user_id);
+
+        $this->assertIsArray($result);
+        $this->assertCount(count($data), $result);
+        $this->assertSame($data, $result);
+    }
 }

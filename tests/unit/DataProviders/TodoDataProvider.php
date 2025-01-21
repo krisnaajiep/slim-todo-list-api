@@ -88,4 +88,33 @@ final class TodoDataProvider
             ]
         ];
     }
+
+    public static function retrievalProvider(): array
+    {
+        return [
+            'todo items' =>  [
+                [
+                    [
+                        'id' => 1,
+                        'user_id' => 0,
+                        'title' => 'Buy groceries',
+                        'status' => 'todo',
+                        'description' => 'Buy milk, eggs, bread',
+                        'created_at' => '2025-01-20T19:16:35.000z',
+                        'updated_at' => '2025-01-20T22:16:22.000z'
+                    ],
+                    [
+                        'id' => 2,
+                        'user_id' => 0,
+                        'title' => 'Pay bills',
+                        'description' => 'Pay electricity and water bills',
+                        'status' => 'todo',
+                        'created_at' => '2025-01-20T19:16:35.000z',
+                        'updated_at' => '2025-01-20T22:16:22.000z'
+                    ]
+                ],
+                0
+            ]
+        ];
+    }
 }
