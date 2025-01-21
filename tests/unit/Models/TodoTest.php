@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 use App\Database;
 use App\Models\Todo;
-use PhpParser\Builder\Property;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
-use PHPUnit\Framework\MockObject\Runtime\PropertyHook;
 use PHPUnit\Framework\TestCase;
 use Test\Unit\DataProviders\TodoDataProvider;
 
@@ -148,6 +146,17 @@ final class TodoTest extends TestCase
         $this->assertCount(10, $result);
         $this->assertSame(11, $result[0]['id']);
         $this->assertSame(20, $result[count($result) - 1]['id']);
+
+        foreach ($result as $key) {
+            $this->assertIsArray($key);
+            $this->assertCount(6, $key);
+            $this->assertArrayHasKey('id', $key);
+            $this->assertArrayHasKey('title', $key);
+            $this->assertArrayHasKey('description', $key);
+            $this->assertArrayHasKey('status', $key);
+            $this->assertArrayHasKey('created_at', $key);
+            $this->assertArrayHasKey('updated_at', $key);
+        }
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
