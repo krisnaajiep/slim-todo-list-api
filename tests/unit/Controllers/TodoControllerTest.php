@@ -195,6 +195,10 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testGetToDoItems(array $data, array $query_params, int $user_id): void
     {
+        if ($user_id === 1) {
+            $this->markTestSkipped('Invalid id throws 404 is not for this test');
+        }
+
         $this->jwt->expects($this->once())
             ->method('decode')
             ->willReturn([
@@ -240,5 +244,50 @@ final class TodoControllerTest extends TestCase
         $this->assertSame($expected, $result);
         $this->assertCount(10, $result['data']);
         $this->assertSame(200, $response->getStatusCode());
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
+    public function testGetToDoItemById(array $data, array $query_params, int $user_id): void
+    {
+        $id = 15;
+
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => $user_id
+            ]);
+
+        $this->model->expects($this->once())
+            ->method('get')
+            ->with(
+                $this->identicalTo($id),
+                $this->identicalTo($user_id),
+            )->willReturn($data[$id] ?? false);
+
+        $response = $this->controller->show($this->request, $this->response, ['id' => $id]);
+        $result = json_decode((string)$response->getBody(), true);
+
+        if ($user_id === 0) {
+            $this->assertIsArray($result);
+            $this->assertCount(6, $result);
+            $this->assertArrayHasKey('id', $result);
+            $this->assertArrayHasKey('title', $result);
+            $this->assertArrayHasKey('description', $result);
+            $this->assertArrayHasKey('status', $result);
+            $this->assertArrayHasKey('created_at', $result);
+            $this->assertArrayHasKey('updated_at', $result);
+            $this->assertSame($data[$id]['id'], $result['id']);
+            $this->assertSame($data[$id]['title'], $result['title']);
+            $this->assertSame($data[$id]['description'], $result['description']);
+            $this->assertSame($data[$id]['status'], $result['status']);
+            $this->assertSame($data[$id]['created_at'], $result['created_at']);
+            $this->assertSame($data[$id]['updated_at'], $result['updated_at']);
+            $this->assertSame(200, $response->getStatusCode());
+        } else {
+            $this->assertIsArray($result);
+            $this->assertCount(1, $result);
+            $this->assertArrayHasKey('message', $result);
+            $this->assertSame(404, $response->getStatusCode());
+        }
     }
 }
