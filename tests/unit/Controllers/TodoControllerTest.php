@@ -191,4 +191,50 @@ final class TodoControllerTest extends TestCase
         $response = $this->controller->delete($this->request, $this->response, ['id' => $id]);
         $this->assertSame($code, $response->getStatusCode());
     }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
+    public function testGetToDoItems(array $data, array $query_params, int $user_id): void
+    {
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'sub' => $user_id
+            ]);
+
+        $this->request->expects($this->once())
+            ->method('getQueryParams')
+            ->willReturn($query_params);
+
+        $page = $query_params['page'];
+        $limit = $query_params['limit'];
+        $start = $page > 1 ? ($page * $limit) - $limit : 0;
+        $new_data = [];
+
+        for ($i = $start; $i < $start + $limit; $i++) {
+            $new_data[] = $data[$i];
+        }
+
+        $this->model->expects($this->once())
+            ->method('getAll')
+            ->with(
+                $this->identicalTo($user_id),
+                $this->identicalTo($start),
+                $this->identicalTo($limit)
+            )->willReturn($new_data);
+
+        $expected = [
+            'data' => $new_data,
+            'page' => $page,
+            'limit' => $limit,
+            'total' => count($new_data)
+        ];
+
+        $response = $this->controller->index($this->request, $this->response, []);
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertSame($expected, $result);
+        $this->assertCount(10, $result['data']);
+        $this->assertSame(200, $response->getStatusCode());
+    }
 }
