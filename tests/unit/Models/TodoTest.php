@@ -126,6 +126,10 @@ final class TodoTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testGetAllTodoItems(array $data, array $query_params, int $user_id): void
     {
+        if ($user_id === 1) {
+            $this->markTestSkipped('Invalid id throws 404 is not for this test');
+        }
+
         $page = $query_params['page'];
         $limit = $query_params['limit'];
 
@@ -160,8 +164,43 @@ final class TodoTest extends TestCase
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
+    public function testGetTodoItemById(array $data, array $query_params, int $user_id): void
+    {
+        if ($user_id === 1) {
+            $this->markTestSkipped('Invalid id throws 404 is not for this test');
+        }
+
+        $id = 5;
+
+        $this->db->expects($this->once())
+            ->method('fetch')
+            ->willReturn($data[$id]);
+
+        $result = $this->todo->get($id, $user_id);
+
+        $this->assertIsArray($result);
+        $this->assertCount(6, $result);
+        $this->assertArrayHasKey('id', $result);
+        $this->assertArrayHasKey('title', $result);
+        $this->assertArrayHasKey('description', $result);
+        $this->assertArrayHasKey('status', $result);
+        $this->assertArrayHasKey('created_at', $result);
+        $this->assertArrayHasKey('updated_at', $result);
+        $this->assertSame($data[$id]['id'], $result['id']);
+        $this->assertSame($data[$id]['title'], $result['title']);
+        $this->assertSame($data[$id]['description'], $result['description']);
+        $this->assertSame($data[$id]['status'], $result['status']);
+        $this->assertSame($data[$id]['created_at'], $result['created_at']);
+        $this->assertSame($data[$id]['updated_at'], $result['updated_at']);
+    }
+
+    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testCountTodoItems(array $data, array $query_params, int $user_id): void
     {
+        if ($user_id === 1) {
+            $this->markTestSkipped('Invalid id throws 404 is not for this test');
+        }
+
         $this->db->expects($this->once())
             ->method('fetch')
             ->willReturn(['COUNT(*)' => count($data)]);

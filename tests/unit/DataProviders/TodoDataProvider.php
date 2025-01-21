@@ -260,6 +260,55 @@ final class TodoDataProvider
                     'limit' => 10
                 ],
                 0
+            ],
+            'invalid id throws 404' => [
+                [
+                    [
+                        "id" => 1,
+                        "title" => "Buy groceries",
+                        "description" => "Buy milk, eggs, bread",
+                        "status" => "todo",
+                        "created_at" => "2025-01-20T19:16:35.000Z",
+                        "updated_at" => "2025-01-20T19:16:35.000Z"
+                    ],
+                    [
+                        "id" => 2,
+                        "title" => "Pay bills",
+                        "description" => "Pay electricity and water bills",
+                        "status" => "todo",
+                        "created_at" => "2025-01-19T18:10:22.000Z",
+                        "updated_at" => "2025-01-20T19:12:35.000Z"
+                    ],
+                    [
+                        "id" => 3,
+                        "title" => "Clean the house",
+                        "description" => "Vacuum living room and clean kitchen",
+                        "status" => "todo",
+                        "created_at" => "2025-01-18T17:00:10.000Z",
+                        "updated_at" => "2025-01-19T16:10:45.000Z"
+                    ],
+                    [
+                        "id" => 4,
+                        "title" => "Workout",
+                        "description" => "Go for a 30-minute run",
+                        "status" => "todo",
+                        "created_at" => "2025-01-20T08:20:15.000Z",
+                        "updated_at" => "2025-01-20T09:25:45.000Z"
+                    ],
+                    [
+                        "id" => 5,
+                        "title" => "Call mom",
+                        "description" => "Check in and see how she's doing",
+                        "status" => "todo",
+                        "created_at" => "2025-01-19T14:00:00.000Z",
+                        "updated_at" => "2025-01-19T14:30:00.000Z"
+                    ],
+                ],
+                [
+                    'page' => 2,
+                    'limit' => 10
+                ],
+                1
             ]
         ];
     }
