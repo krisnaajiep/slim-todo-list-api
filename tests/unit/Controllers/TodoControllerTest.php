@@ -29,6 +29,8 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'creationProvider')]
     public function testCreateSuccessfully(array $data): void
     {
+        $id = rand(1, 100);
+
         $this->jwt->expects($this->once())
             ->method('decode')
             ->willReturn([
@@ -42,7 +44,7 @@ final class TodoControllerTest extends TestCase
         $this->model->expects($this->once())
             ->method('create')
             ->willReturn([
-                'id' => rand(1, 100),
+                'id' => $id,
                 'title' => $data['title'],
                 'description' => $data['description']
             ]);
@@ -56,6 +58,9 @@ final class TodoControllerTest extends TestCase
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
+        $this->assertSame($id, $result['id']);
+        $this->assertSame($data['title'], $result['title']);
+        $this->assertSame($data['description'], $result['description']);
         $this->assertSame(201, $response->getStatusCode());
     }
 
@@ -79,6 +84,11 @@ final class TodoControllerTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertArrayHasKey('errors', $result);
+        $this->assertCount(2, $result['errors']);
+        $this->assertArrayHasKey('title', $result['errors']);
+        $this->assertArrayHasKey('description', $result['errors']);
+        $this->assertSame('title input must be at least 3 characters long.', $result['errors']['title']);
+        $this->assertSame('description field is required.', $result['errors']['description']);
         $this->assertSame(400, $response->getStatusCode());
     }
 
@@ -115,6 +125,10 @@ final class TodoControllerTest extends TestCase
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
         $this->assertArrayHasKey('status', $result);
+        $this->assertSame($id, $result['id']);
+        $this->assertSame($data['title'], $result['title']);
+        $this->assertSame($data['description'], $result['description']);
+        $this->assertSame($data['status'] ?? 'todo', $result['status']);
         $this->assertSame(200, $response->getStatusCode());
     }
 
@@ -151,9 +165,13 @@ final class TodoControllerTest extends TestCase
         $this->assertArrayHasKey($code !== 400 ? 'message' : 'errors', $result);
 
         if ($code === 400) {
+            $this->assertCount(3, $result['errors']);
             $this->assertArrayHasKey('title', $result['errors']);
             $this->assertArrayHasKey('description', $result['errors']);
             $this->assertArrayHasKey('status', $result['errors']);
+            $this->assertSame('title input must be at least 3 characters long.', $result['errors']['title']);
+            $this->assertSame('description field is required.', $result['errors']['description']);
+            $this->assertSame('status must be todo, in progress, or done.', $result['errors']['status']);
         }
 
         $this->assertSame($code, $response->getStatusCode());
@@ -296,6 +314,7 @@ final class TodoControllerTest extends TestCase
             $this->assertIsArray($result);
             $this->assertCount(1, $result);
             $this->assertArrayHasKey('message', $result);
+            $this->assertSame('Todo not found', $result['message']);
             $this->assertSame(404, $response->getStatusCode());
         }
     }

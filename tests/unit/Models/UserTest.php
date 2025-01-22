@@ -22,12 +22,19 @@ final class UserTest extends TestCase
     #[DataProviderExternal(UserDataProvider::class, 'creationProvider')]
     public function testCreatesUser(array $data): void
     {
+        $id = (string)rand(1, 100);
+
+        $this->db->expects($this->once())
+            ->method('lastInsertId')
+            ->willReturn($id);
+
         $result = $this->user->create($data);
 
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('name', $result);
+        $this->assertSame((int)$id, $result['id']);
         $this->assertSame($data['name'], $result['name']);
     }
 
@@ -52,6 +59,7 @@ final class UserTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('name', $result);
+        $this->assertSame($data['id'], $result['id']);
         $this->assertSame($data['name'], $result['name']);
     }
 

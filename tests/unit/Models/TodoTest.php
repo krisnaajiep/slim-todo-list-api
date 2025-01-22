@@ -22,6 +22,12 @@ final class TodoTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'creationProvider')]
     public function testCreatesTodo(array $data): void
     {
+        $id = (string)rand(1, 100);
+
+        $this->db->expects($this->once())
+            ->method('lastInsertId')
+            ->willReturn($id);
+
         $result = $this->todo->create($data);
 
         $this->assertIsArray($result);
@@ -29,6 +35,9 @@ final class TodoTest extends TestCase
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
+        $this->assertSame((int)$id, $result['id']);
+        $this->assertSame($data['title'], $result['title']);
+        $this->assertSame($data['description'], $result['description']);
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'modificationProvider')]
@@ -58,6 +67,10 @@ final class TodoTest extends TestCase
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
         $this->assertArrayHasKey('status', $result);
+        $this->assertSame($id, $result['id']);
+        $this->assertSame($data['title'], $result['title']);
+        $this->assertSame($data['description'], $result['description']);
+        $this->assertSame($data['status'], $result['status']);
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'invalidModificationProvider')]
@@ -103,6 +116,7 @@ final class TodoTest extends TestCase
 
         $result = $this->todo->delete($id, $user_id);
 
+        $this->assertIsBool($result);
         $this->assertTrue($result);
     }
 

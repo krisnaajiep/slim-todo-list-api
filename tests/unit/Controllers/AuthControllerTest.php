@@ -48,6 +48,7 @@ final class AuthControllerTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertArrayHasKey('access_token', $result);
         $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame(3600, $result['expires_in']);
         $this->assertSame(201, $response->getStatusCode());
     }
 
@@ -73,6 +74,13 @@ final class AuthControllerTest extends TestCase
 
         if ($case === 'invalid registration data') {
             $this->assertArrayHasKey('errors', $result);
+            $this->assertCount(3, $result['errors']);
+            $this->assertArrayHasKey('name', $result['errors']);
+            $this->assertArrayHasKey('email', $result['errors']);
+            $this->assertArrayHasKey('password_confirmation', $result['errors']);
+            $this->assertSame('name field is required.', $result['errors']['name']);
+            $this->assertSame('email input must be a valid email address.', $result['errors']['email']);
+            $this->assertSame("password_confirmation doesn't match.", $result['errors']['password_confirmation']);
             $this->assertSame(400, $response->getStatusCode());
         } else {
             $this->assertArrayHasKey('message', $result);
@@ -105,6 +113,7 @@ final class AuthControllerTest extends TestCase
         $this->assertCount(2, $result);
         $this->assertArrayHasKey('access_token', $result);
         $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame(3600, $result['expires_in']);
         $this->assertSame(200, $response->getStatusCode());
     }
 
@@ -130,6 +139,11 @@ final class AuthControllerTest extends TestCase
 
         if ($case === 'invalid credentials') {
             $this->assertArrayHasKey('errors', $result);
+            $this->assertCount(2, $result['errors']);
+            $this->assertArrayHasKey('email', $result['errors']);
+            $this->assertArrayHasKey('password', $result['errors']);
+            $this->assertSame('email input must be a valid email address.', $result['errors']['email']);
+            $this->assertSame('password field is required.', $result['errors']['password']);
             $this->assertSame(400, $response->getStatusCode());
         } else {
             $this->assertArrayHasKey('message', $result);
