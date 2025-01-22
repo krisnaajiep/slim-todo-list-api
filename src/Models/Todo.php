@@ -73,9 +73,13 @@ class Todo
                 throw new \PDOException("Forbidden", 403);
             }
 
-            $this->db->prepare("UPDATE $this->table SET title = :title, description = :description WHERE id = :id");
+            $todo = $this->getStatusById($id);
+            $status = $data['status'] ?? $todo['status'];
+
+            $this->db->prepare("UPDATE $this->table SET title = :title, description = :description, status = :status WHERE id = :id");
             $this->db->bindParam(':title', $data['title']);
             $this->db->bindParam(':description', $data['description']);
+            $this->db->bindParam(':status', $status);
             $this->db->bindParam(':id', $id);
 
             $this->db->execute();
@@ -83,7 +87,8 @@ class Todo
             return [
                 'id' => $id,
                 'title' => $data['title'],
-                'description' => $data['description']
+                'description' => $data['description'],
+                'status' => $status
             ];
         } catch (\PDOException $th) {
             if ($th->getCode() == 404 || $th->getCode() == 403) {
@@ -127,6 +132,15 @@ class Todo
         if ($this->db->rowCount() === 0) {
             throw new \PDOException('Todo not found.', 404);
         }
+
+        return $this->db->fetch();
+    }
+
+    private function getStatusById(int $id): array
+    {
+        $this->db->prepare("SELECT status FROM $this->table WHERE id = :id");
+        $this->db->bindParam(':id', $id);
+        $this->db->execute();
 
         return $this->db->fetch();
     }
