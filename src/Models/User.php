@@ -41,7 +41,7 @@ class User
             $id = $this->db->lastInsertId();
 
             return [
-                'id' => $id,
+                'id' => (int)$id,
                 'name' => $data['name'],
             ];
         } catch (\PDOException $th) {

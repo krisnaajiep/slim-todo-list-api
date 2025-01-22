@@ -37,7 +37,7 @@ class Todo
         $id = $this->db->lastInsertId();
 
         return [
-            'id' => $id,
+            'id' => (int)$id,
             'title' => $data['title'],
             'description' => $data['description']
         ];
