@@ -89,7 +89,14 @@ class TodoController
         $data = $request->getParsedBody() ?? [];
         $data['user_id'] = $decoded['sub'];
 
+        $valid_status = ['todo', 'in progress', 'done'];
+
         $validator = TodoValidator::validate($data);
+
+        if (!empty($data['status']) && !in_array($data['status'], $valid_status)) {
+            $validator::setValidationError('status', 'status must be todo, in progress, or done.');
+        }
+
         if ($validator->hasValidationErrors()) {
             $errors = ['errors' => $validator->getValidationErrors()];
 

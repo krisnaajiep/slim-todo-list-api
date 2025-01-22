@@ -193,12 +193,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/krisnaajiep/php-validator.git",
-                "reference": "72321c7c8ada95645f2e3987d61cd36823833458"
+                "reference": "c7ca5f454f5138a74960f0a2b09c4272918bde38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/krisnaajiep/php-validator/zipball/72321c7c8ada95645f2e3987d61cd36823833458",
-                "reference": "72321c7c8ada95645f2e3987d61cd36823833458",
+                "url": "https://api.github.com/repos/krisnaajiep/php-validator/zipball/c7ca5f454f5138a74960f0a2b09c4272918bde38",
+                "reference": "c7ca5f454f5138a74960f0a2b09c4272918bde38",
                 "shasum": ""
             },
             "require": {
@@ -226,7 +226,7 @@
                 "issues": "https://github.com/krisnaajiep/php-validator/issues",
                 "source": "https://github.com/krisnaajiep/php-validator/tree/main"
             },
-            "time": "2025-01-13T12:18:33+00:00"
+            "time": "2025-01-22T13:59:10+00:00"
         },
         {
             "name": "middlewares/trailing-slash",
