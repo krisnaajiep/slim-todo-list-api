@@ -38,17 +38,26 @@ final class TodoTest extends TestCase
             ->method('rowCount')
             ->willReturn(1);
 
-        $this->db->expects($this->once())
+        $this->db->expects($this->exactly(2))
             ->method('fetch')
             ->willReturn(['user_id' => $data['user_id']]);
+
+        if (empty($data['status'])) {
+            $data['status'] = 'todo';
+
+            $this->db->expects($this->exactly(2))
+                ->method('fetch')
+                ->willReturn(['status' => $data['status']]);
+        }
 
         $result = $this->todo->update($id, $data);
 
         $this->assertIsArray($result);
-        $this->assertCount(3, $result);
+        $this->assertCount(4, $result);
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
+        $this->assertArrayHasKey('status', $result);
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'invalidModificationProvider')]

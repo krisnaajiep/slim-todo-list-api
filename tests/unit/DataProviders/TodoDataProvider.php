@@ -24,7 +24,16 @@ final class TodoDataProvider
                 [
                     'user_id' => 0,
                     'title' => 'Buy Groceries',
-                    'description' => 'Buy milk, eggs, bread, and cheese'
+                    'description' => 'Buy milk, eggs, bread, and cheese',
+                    'status' => 'in progress'
+                ],
+                0
+            ],
+            'null todo status' => [
+                [
+                    'user_id' => 0,
+                    'title' => 'Buy Groceries',
+                    'description' => 'Buy milk, eggs, bread, and cheese',
                 ],
                 0
             ]
