@@ -101,7 +101,8 @@ final class TodoControllerTest extends TestCase
             ->willReturn([
                 'id' => $id,
                 'title' => $data['title'],
-                'description' => $data['description']
+                'description' => $data['description'],
+                'status' => $data['status'] ?? 'todo'
             ]);
 
         $response = $this->controller->update($this->request, $this->response, ['id' => $id]);
@@ -109,10 +110,11 @@ final class TodoControllerTest extends TestCase
         $result = json_decode((string)$response->getBody(), true);
 
         $this->assertIsArray($result);
-        $this->assertCount(3, $result);
+        $this->assertCount(4, $result);
         $this->assertArrayHasKey('id', $result);
         $this->assertArrayHasKey('title', $result);
         $this->assertArrayHasKey('description', $result);
+        $this->assertArrayHasKey('status', $result);
         $this->assertSame(200, $response->getStatusCode());
     }
 
@@ -147,6 +149,13 @@ final class TodoControllerTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(1, $result);
         $this->assertArrayHasKey($code !== 400 ? 'message' : 'errors', $result);
+
+        if ($code === 400) {
+            $this->assertArrayHasKey('title', $result['errors']);
+            $this->assertArrayHasKey('description', $result['errors']);
+            $this->assertArrayHasKey('status', $result['errors']);
+        }
+
         $this->assertSame($code, $response->getStatusCode());
     }
 

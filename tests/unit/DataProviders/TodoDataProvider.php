@@ -78,7 +78,8 @@ final class TodoDataProvider
                 [
                     'user_id' => 0,
                     'title' => 'Gr',
-                    'description' => ''
+                    'description' => '',
+                    'status' => 'single'
                 ],
                 0
             ]
