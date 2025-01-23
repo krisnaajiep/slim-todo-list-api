@@ -52,9 +52,20 @@ class Todo
         return $this->db->fetch();
     }
 
-    public function getAll(int $user_id, int $start = 0, int $limit = 0): array
+    public function getAll(int $user_id, int $start = 0, int $limit = 0, array $filters = []): array
     {
-        $query = "SELECT id, title, description, status, created_at, updated_at FROM $this->table WHERE user_id = :user_id LIMIT :start, :limit";
+        $query = "SELECT id, title, description, status, created_at, updated_at FROM $this->table WHERE user_id = :user_id ";
+
+        if (!empty($filters['status'])) {
+            $query .= "AND status = '{$filters['status']}' ";
+        }
+
+        if (!empty($filters['sort'])) {
+            $order = ($filters['sort'] === 'title' || $filters['sort'] === 'description') ? 'DESC' : 'ASC';
+            $query .= "ORDER BY {$filters['sort']} $order ";
+        }
+
+        $query .= "LIMIT :start, :limit";
 
         $this->db->prepare($query);
         $this->db->bindParam(':user_id', $user_id);

@@ -31,7 +31,12 @@ class TodoController
         $limit = $query_params['limit'] ?? $count;
         $start = $page > 1 ? ($page * $limit) - $limit : 0;
 
-        $items = $this->model->getAll($user_id, $start, $limit);
+        $filters = [
+            'status' => $query_params['status'] ?? '',
+            'sort' => $query_params['sort'] ?? ''
+        ];
+
+        $items = $this->model->getAll($user_id, $start, $limit, $filters);
 
         $result = [
             'data' => $items,
