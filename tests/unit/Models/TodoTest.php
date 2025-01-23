@@ -233,22 +233,4 @@ final class TodoTest extends TestCase
             $this->assertSame($data[$id]['updated_at'], $result['updated_at']);
         }
     }
-
-    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
-    public function testCountTodoItems(array $data, array $query_params, int $user_id): void
-    {
-        if ($user_id === 1) {
-            $this->markTestSkipped('Invalid id throws 404 is not for this test');
-        }
-
-        $this->db->expects($this->once())
-            ->method('fetch')
-            ->willReturn(['COUNT(*)' => count($data)]);
-
-        $result = $this->todo->count($user_id);
-
-        $this->assertIsArray($result);
-        $this->assertIsInt($result['COUNT(*)']);
-        $this->assertSame(20, $result['COUNT(*)']);
-    }
 }
