@@ -149,18 +149,31 @@ final class TodoTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testGetAllTodoItems(array $data, array $query_params, int $user_id): void
     {
-        if ($user_id === 1) {
-            $this->markTestSkipped('Invalid id throws 404 is not for this test');
-        }
-
         $page = $query_params['page'];
         $limit = $query_params['limit'];
-
         $start = $page > 1 ? ($page * $limit) - $limit : 0;
+
         $new_data = [];
 
         for ($i = $start; $i < $start + $limit; $i++) {
             $new_data[] = $data[$i];
+        }
+
+        if ($user_id === 1) {
+            $status = $query_params['status'];
+            $sort = $query_params['sort'];
+
+            $new_data = array_filter($new_data, function ($todo) use ($status) {
+                return $todo['status'] === $status;
+            });
+
+            usort($new_data, function ($a, $b) use ($sort) {
+                if ($a[$sort] == $b[$sort]) {
+                    return 0;
+                }
+
+                return ($a[$sort] > $b[$sort]) ? -1 : 1;
+            });
         }
 
         $this->db->expects($this->once())
@@ -170,9 +183,9 @@ final class TodoTest extends TestCase
         $result = $this->todo->getAll($user_id, $start, $limit);
 
         $this->assertIsArray($result);
-        $this->assertCount(10, $result);
-        $this->assertSame(11, $result[0]['id']);
-        $this->assertSame(20, $result[count($result) - 1]['id']);
+        $this->assertCount($user_id === 1 ? 4 : 10, $result);
+        $this->assertSame($user_id === 1 ? 3 : 10, $result[0]['id']);
+        $this->assertSame($user_id === 1 ? 0 : 19, $result[count($result) - 1]['id']);
 
         foreach ($result as $key) {
             $this->assertIsArray($key);
@@ -183,38 +196,42 @@ final class TodoTest extends TestCase
             $this->assertArrayHasKey('status', $key);
             $this->assertArrayHasKey('created_at', $key);
             $this->assertArrayHasKey('updated_at', $key);
+
+            if ($user_id === 1) {
+                $this->assertSame($status, $key['status']);
+            }
         }
     }
 
-    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
-    public function testGetTodoItemById(array $data, array $query_params, int $user_id): void
+    #[DataProviderExternal(TodoDataProvider::class, 'singleRetrievalProvider')]
+    public function testGetTodoItemById(array $data, int $user_id): void
     {
-        if ($user_id === 1) {
-            $this->markTestSkipped('Invalid id throws 404 is not for this test');
-        }
-
-        $id = 5;
+        $id = 2;
 
         $this->db->expects($this->once())
             ->method('fetch')
-            ->willReturn($data[$id]);
+            ->willReturn($data[$id] ?? false);
 
         $result = $this->todo->get($id, $user_id);
 
-        $this->assertIsArray($result);
-        $this->assertCount(6, $result);
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('title', $result);
-        $this->assertArrayHasKey('description', $result);
-        $this->assertArrayHasKey('status', $result);
-        $this->assertArrayHasKey('created_at', $result);
-        $this->assertArrayHasKey('updated_at', $result);
-        $this->assertSame($data[$id]['id'], $result['id']);
-        $this->assertSame($data[$id]['title'], $result['title']);
-        $this->assertSame($data[$id]['description'], $result['description']);
-        $this->assertSame($data[$id]['status'], $result['status']);
-        $this->assertSame($data[$id]['created_at'], $result['created_at']);
-        $this->assertSame($data[$id]['updated_at'], $result['updated_at']);
+        if ($user_id === 1) {
+            $this->assertFalse($result);
+        } else {
+            $this->assertIsArray($result);
+            $this->assertCount(6, $result);
+            $this->assertArrayHasKey('id', $result);
+            $this->assertArrayHasKey('title', $result);
+            $this->assertArrayHasKey('description', $result);
+            $this->assertArrayHasKey('status', $result);
+            $this->assertArrayHasKey('created_at', $result);
+            $this->assertArrayHasKey('updated_at', $result);
+            $this->assertSame($data[$id]['id'], $result['id']);
+            $this->assertSame($data[$id]['title'], $result['title']);
+            $this->assertSame($data[$id]['description'], $result['description']);
+            $this->assertSame($data[$id]['status'], $result['status']);
+            $this->assertSame($data[$id]['created_at'], $result['created_at']);
+            $this->assertSame($data[$id]['updated_at'], $result['updated_at']);
+        }
     }
 
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
