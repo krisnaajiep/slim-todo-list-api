@@ -222,10 +222,6 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testGetToDoItems(array $data, array $query_params, int $user_id): void
     {
-        if ($user_id === 1) {
-            $this->markTestSkipped('Invalid id throws 404 is not for this test');
-        }
-
         $this->jwt->expects($this->once())
             ->method('decode')
             ->willReturn([
@@ -249,6 +245,23 @@ final class TodoControllerTest extends TestCase
             $new_data[] = $data[$i];
         }
 
+        if ($user_id === 1) {
+            $status = $query_params['status'];
+            $sort = $query_params['sort'];
+
+            $new_data = array_filter($new_data, function ($todo) use ($status) {
+                return $todo['status'] === $status;
+            });
+
+            usort($new_data, function ($a, $b) use ($sort) {
+                if ($a[$sort] == $b[$sort]) {
+                    return 0;
+                }
+
+                return ($a[$sort] > $b[$sort]) ? -1 : 1;
+            });
+        }
+
         $this->model->expects($this->once())
             ->method('getAll')
             ->with(
@@ -268,15 +281,47 @@ final class TodoControllerTest extends TestCase
         $result = json_decode((string)$response->getBody(), true);
 
         $this->assertIsArray($result);
+        $this->assertCount(4, $result);
+        $this->assertArrayHasKey('data', $result);
+        $this->assertArrayHasKey('page', $result);
+        $this->assertArrayHasKey('total', $result);
         $this->assertSame($expected, $result);
-        $this->assertCount(10, $result['data']);
+
+        $this->assertIsArray($result['data']);
+        $this->assertIsInt($result['page']);
+        $this->assertIsInt($result['limit']);
+        $this->assertIsInt($result['total']);
+        $this->assertSame($new_data, $result['data']);
+        $this->assertSame($page, $result['page']);
+        $this->assertSame($limit, $result['limit']);
+        $this->assertSame(count($data), $result['total']);
+
+        $this->assertCount($user_id === 1 ? 4 : 10, $result['data']);
+        $this->assertSame($user_id === 1 ? 3 : 10, $result['data'][0]['id']);
+        $this->assertSame($user_id === 1 ? 0 : 19, $result['data'][count($result['data']) - 1]['id']);
+
+        foreach ($result['data'] as $key) {
+            $this->assertIsArray($key);
+            $this->assertCount(6, $key);
+            $this->assertArrayHasKey('id', $key);
+            $this->assertArrayHasKey('title', $key);
+            $this->assertArrayHasKey('description', $key);
+            $this->assertArrayHasKey('status', $key);
+            $this->assertArrayHasKey('created_at', $key);
+            $this->assertArrayHasKey('updated_at', $key);
+
+            if ($user_id === 1) {
+                $this->assertSame($status, $key['status']);
+            }
+        }
+
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
-    public function testGetToDoItemById(array $data, array $query_params, int $user_id): void
+    #[DataProviderExternal(TodoDataProvider::class, 'singleRetrievalProvider')]
+    public function testGetToDoItemById(array $data, int $user_id): void
     {
-        $id = 15;
+        $id = 2;
 
         $this->jwt->expects($this->once())
             ->method('decode')
