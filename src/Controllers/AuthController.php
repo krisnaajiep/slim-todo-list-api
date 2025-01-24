@@ -12,11 +12,12 @@ use Slim\Exception\HttpInternalServerErrorException;
 
 class AuthController
 {
-    private $model;
+    private $model, $jwt;
 
-    public function __construct(User $model = null)
+    public function __construct(User $model = null, JWTHelper $jwt = null)
     {
         $this->model = $model ?? new User();
+        $this->jwt = $jwt ?? new JWTHelper();
     }
 
     public function register(Request $request, Response $response, array $args): Response
@@ -34,7 +35,7 @@ class AuthController
         try {
             $user = $this->model->create($data);
 
-            $response->getBody()->write(json_encode($this->respondWithToken($user)));
+            $response->getBody()->write(json_encode($this->respondWithTokens($user)));
             return $response->withStatus(201);
         } catch (\Throwable $th) {
             if ($th->getCode() == 409) {
@@ -63,7 +64,7 @@ class AuthController
         try {
             $user = $this->model->authenticate($data);
 
-            $response->getBody()->write(json_encode($this->respondWithToken($user)));
+            $response->getBody()->write(json_encode($this->respondWithTokens($user)));
             return $response;
         } catch (\Throwable $th) {
             if ($th->getCode() == 401) {
@@ -77,14 +78,45 @@ class AuthController
         }
     }
 
-    private function respondWithToken(array $user = [])
+    public function refresh(Request $request, Response $response, array $args): Response
+    {
+        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+
+        $user = [
+            'id' => $decoded['sub'],
+            'name' => $decoded['name']
+        ];
+
+        $response->getBody()->write(json_encode($this->respondWithOnlyAccessToken($user)));
+        return $response;
+    }
+
+    private function respondWithTokens(array $user = []): array
+    {
+        $ttl = 3600;
+        $refresh_ttl = $ttl * 24 * 3;
+
+        $access_token = $this->jwt->encode($user, $ttl, true);
+        $refresh_token = $this->jwt->encode($user, $refresh_ttl, false);
+
+        return [
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'token_type' => 'Bearer',
+            'expires_in' => $ttl,
+        ];
+    }
+
+    private function respondWithOnlyAccessToken(array $user = []): array
     {
         $ttl = 3600;
 
-        $jwt = (new JWTHelper())->encode($user, $ttl, true);
+        $access_token = $this->jwt->encode($user, $ttl, true);
 
         return [
-            'access_token' => $jwt,
+            'message' => 'Token refreshed',
+            'access_token' => $access_token,
+            'token_type' => 'Bearer',
             'expires_in' => $ttl,
         ];
     }

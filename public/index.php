@@ -59,6 +59,8 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->post('/register', [AuthController::class, 'register']);
 $app->post('/login', [AuthController::class, 'login']);
+$app->post('/refresh', [AuthController::class, 'refresh'])
+    ->add(new AuthenticationMiddleware(new ResponseFactory(), access: false));
 
 $app->group('/todos', function (RouteCollectorProxy $group) {
     $group->post('', [TodoController::class, 'create']);
