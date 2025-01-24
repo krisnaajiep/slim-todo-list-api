@@ -6,6 +6,7 @@ use App\Models\User;
 use Slim\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use App\Controllers\AuthController;
+use App\JWTHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use Test\Unit\DataProviders\UserDataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
@@ -13,13 +14,14 @@ use PHPUnit\Framework\Attributes\DataProviderExternal;
 final class AuthControllerTest extends TestCase
 {
     private ?AuthController $controller;
-    private $model, $request;
+    private $model, $request, $jwt;
     private ?Response $response;
 
     public function setUp(): void
     {
         $this->model = $this->createMock(User::class);
-        $this->controller = new AuthController($this->model);
+        $this->jwt = $this->createMock(JWTHelper::class);
+        $this->controller = new AuthController($this->model, $this->jwt);
         $this->request = $this->createMock(ServerRequestInterface::class);
         $this->response = new Response();
     }
@@ -45,9 +47,12 @@ final class AuthControllerTest extends TestCase
         $result = json_decode((string)$response->getBody(), true);
 
         $this->assertIsArray($result);
-        $this->assertCount(2, $result);
+        $this->assertCount(4, $result);
         $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('refresh_token', $result);
+        $this->assertArrayHasKey('token_type', $result);
         $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame('Bearer', $result['token_type']);
         $this->assertSame(3600, $result['expires_in']);
         $this->assertSame(201, $response->getStatusCode());
     }
@@ -110,9 +115,12 @@ final class AuthControllerTest extends TestCase
         $result = json_decode((string)$response->getBody(), true);
 
         $this->assertIsArray($result);
-        $this->assertCount(2, $result);
+        $this->assertCount(4, $result);
         $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('refresh_token', $result);
+        $this->assertArrayHasKey('token_type', $result);
         $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame('Bearer', $result['token_type']);
         $this->assertSame(3600, $result['expires_in']);
         $this->assertSame(200, $response->getStatusCode());
     }
@@ -150,5 +158,36 @@ final class AuthControllerTest extends TestCase
             $this->assertSame('Invalid email or password.', $result['message']);
             $this->assertSame(401, $response->getStatusCode());
         }
+    }
+
+    public function testRefreshTokenSuccessfully(): void
+    {
+        $user = [
+            'id' => rand(1, 100),
+            'name' => 'John Doe'
+        ];
+
+        $this->jwt->expects($this->once())
+            ->method('decode')
+            ->willReturn([
+                'jti' => bin2hex(random_bytes(16)),
+                'exp' => time() + 3600,
+                'sub' => $user['id'],
+                'name' => $user['name'],
+            ]);
+
+        $response = $this->controller->refresh($this->request, $this->response, []);
+        $result = json_decode((string)$response->getBody(), true);
+
+        $this->assertIsArray($result);
+        $this->assertCount(4, $result);
+        $this->assertArrayHasKey('message', $result);
+        $this->assertArrayHasKey('access_token', $result);
+        $this->assertArrayHasKey('token_type', $result);
+        $this->assertArrayHasKey('expires_in', $result);
+        $this->assertSame('Token refreshed', $result['message']);
+        $this->assertSame('Bearer', $result['token_type']);
+        $this->assertSame(3600, $result['expires_in']);
+        $this->assertSame(200, $response->getStatusCode());
     }
 }
