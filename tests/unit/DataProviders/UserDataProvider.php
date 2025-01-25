@@ -85,4 +85,16 @@ final class UserDataProvider
             ],
         ];
     }
+
+    public static function incorrectPasswordAuthenticationProvider(): array
+    {
+        return [
+            'incorrect password' => [
+                [
+                    'email' => 'john@doe.com',
+                    'password' => 'drowsapp'
+                ],
+            ],
+        ];
+    }
 }

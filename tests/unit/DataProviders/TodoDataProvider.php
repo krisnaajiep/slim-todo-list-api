@@ -86,6 +86,28 @@ final class TodoDataProvider
         ];
     }
 
+    public static function throwExceptionModificationProvider(): array
+    {
+        return [
+            'invalid id throws 404' => [
+                [
+                    'user_id' => 0,
+                    'title' => 'Buy Groceries',
+                    'description' => 'Buy milk, eggs, bread, and cheese'
+                ],
+                2
+            ],
+            'unauthorized user id throws 403' => [
+                [
+                    'user_id' => 0,
+                    'title' => 'Buy Groceries',
+                    'description' => 'Buy milk, eggs, bread, and cheese'
+                ],
+                1
+            ]
+        ];
+    }
+
     public static function invalidCreationProvider(): array
     {
         return [

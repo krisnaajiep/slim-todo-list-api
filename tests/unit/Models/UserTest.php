@@ -63,13 +63,9 @@ final class UserTest extends TestCase
         $this->assertSame($data['name'], $result['name']);
     }
 
-    #[DataProviderExternal(UserDataProvider::class, 'invalidAuthenticationProvider')]
-    public function testFailsToAuthenticateUser(array $credentials, string $case): void
+    #[DataProviderExternal(UserDataProvider::class, 'incorrectPasswordAuthenticationProvider')]
+    public function testFailsToAuthenticateUser(array $credentials): void
     {
-        if ($case === 'invalid credentials') {
-            $this->markTestSkipped('Invalid credentials is not for this test');
-        }
-
         $data = (new UserDataProvider())->validRegistrationProvider()['valid registration data'][0];
         $data['id'] = rand(1, 100);
         $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);

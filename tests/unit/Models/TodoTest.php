@@ -73,13 +73,9 @@ final class TodoTest extends TestCase
         $this->assertSame($data['status'], $result['status']);
     }
 
-    #[DataProviderExternal(TodoDataProvider::class, 'invalidModificationProvider')]
+    #[DataProviderExternal(TodoDataProvider::class, 'throwExceptionModificationProvider')]
     public function testFailsToUpdateTodo(array $data, int $id)
     {
-        if (!$id) {
-            $this->markTestSkipped('Invalid todo data is not for this test');
-        }
-
         $rowCount = $id === 2 ? 0 : 1;
 
         $this->db->expects($this->once())
