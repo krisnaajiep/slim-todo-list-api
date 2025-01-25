@@ -13,8 +13,6 @@ use App\Middlewares\JsonBodyParserMiddleware;
 use App\Middlewares\RateLimiterMiddleware;
 use App\Middlewares\ThrottlingMiddleware;
 use Slim\Factory\ServerRequestCreatorFactory;
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -44,19 +42,14 @@ $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, false, false);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
-// Middlewares
+// Add Middlewares
 $app->add(new ReturningJsonMiddleware());
 $app->add(new JsonBodyParserMiddleware());
 $app->add(new RateLimiterMiddleware(new ResponseFactory(), 60, 60));
 $app->add(new ThrottlingMiddleware(1));
 $app->add(new TrailingSlash(trailingSlash: false));
 
-// Routes
-$app->get('/', function (Request $request, Response $response, $args) {
-    $response->getBody()->write(json_encode(['Foo' => 'Bar']));
-    return $response;
-});
-
+// Add Routes
 $app->post('/register', [AuthController::class, 'register']);
 $app->post('/login', [AuthController::class, 'login']);
 $app->post('/refresh', [AuthController::class, 'refresh'])
