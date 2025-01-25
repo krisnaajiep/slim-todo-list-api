@@ -4,3 +4,4 @@ client/
 .cz.toml
 .devdbrc
 *.cache
+cache/*.json
