@@ -61,8 +61,7 @@ class Todo
         }
 
         if (!empty($filters['sort'])) {
-            $order = ($filters['sort'] === 'title' || $filters['sort'] === 'description') ? 'DESC' : 'ASC';
-            $query .= "ORDER BY {$filters['sort']} $order ";
+            $query .= "ORDER BY {$filters['sort']} DESC ";
         }
 
         $query .= "LIMIT :start, :limit";
