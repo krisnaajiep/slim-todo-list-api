@@ -6,15 +6,37 @@ use App\Database;
 use Exception;
 use Slim\Exception\HttpBadRequestException;
 
+/**
+ * The User class.
+ * 
+ * This class handles user operations.
+ */
 class User
 {
-    private $db;
+    /**
+     * The database instance for handling database operations.
+     * 
+     * @var Database
+     */
+    private Database $db;
+
+    /**
+     * The table name.
+     * 
+     * @var string
+     */
     private string $table = 'users';
 
+    /**
+     * Creates a new User instance.
+     * 
+     * @param Database|null $db The database instance for handling database operations.
+     */
     public function __construct(Database $db = null)
     {
         $this->db = $db ?? new Database();
 
+        // Create the users table if it doesn't exist.
         $this->db->exec("CREATE TABLE IF NOT EXISTS $this->table (
                          id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                          name VARCHAR(50) NOT NULL,
@@ -26,8 +48,16 @@ class User
                         )");
     }
 
+    /**
+     * Creates a new user.
+     * 
+     * @param array $data The user data.
+     * 
+     * @return array The created user data.
+     */
     public function create(array $data): array
     {
+        // Hash the password.
         $password = password_hash($data["password"], PASSWORD_DEFAULT);
 
         try {
@@ -45,6 +75,7 @@ class User
                 'name' => $data['name'],
             ];
         } catch (\PDOException $th) {
+            // Check if the email address already exists.
             if ($th->getCode() == 23000) {
                 throw new Exception('Email address already exists.', 409);
             } else {
@@ -53,6 +84,13 @@ class User
         }
     }
 
+    /**
+     * Authenticates a user.
+     * 
+     * @param array $data The user data.
+     * 
+     * @return array The authenticated user data.
+     */
     public function authenticate(array $data): array
     {
         try {
@@ -61,6 +99,7 @@ class User
 
             $user = $this->db->fetch();
 
+            // Check if the user exists and the password is correct.
             if ($this->db->rowCount() === 0 || !password_verify($data['password'], $user['password'])) {
                 throw new \PDOException("Invalid email or password.", 401);
             }
@@ -76,33 +115,5 @@ class User
                 throw new Exception('Internal server error.');
             }
         }
-    }
-
-    public function get(): array
-    {
-        // Write Code
-
-        return [];
-    }
-
-    public function getAll(): array
-    {
-        // Write Code
-
-        return [];
-    }
-
-    public function update(array $data): array
-    {
-        // Write Code
-
-        return [];
-    }
-
-    public function delete(int $id): bool
-    {
-        // Write Code
-
-        return true;
     }
 }
