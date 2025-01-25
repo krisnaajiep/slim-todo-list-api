@@ -25,7 +25,8 @@ class ReturningJsonMiddleware implements MiddlewareInterface
      *
      * This middleware intercepts the request, processes it through the next handler, and ensures that
      * the response has the 'Content-Type' header set to 'application/json'.
-     *
+     * It also adds the 'X-RateLimit-Limit', 'X-RateLimit-Remaining', and 'X-RateLimit-Reset' headers to the response.
+     * 
      * @param Request $request The incoming server request.
      * @param RequestHandler $handler The request handler to process the request.
      * @return Response The response with the added JSON content type header.
@@ -35,6 +36,20 @@ class ReturningJsonMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
 
         $response = $response->withAddedHeader('Content-Type', 'application/json');
+
+        $params = $request->getServerParams();
+        $address = $params['REMOTE_ADDR'];
+
+        $path = __DIR__ . '/../../cache/rate-limits.json';
+
+        $rate_limit = json_decode(file_get_contents($path), true);
+        $limit = $rate_limit[$address]['limit'];
+        $remaining = $rate_limit[$address]['remaining'];
+        $reset_time = $rate_limit[$address]['reset_time'];
+
+        $response = $response->withAddedHeader('X-RateLimit-Limit', $limit);
+        $response = $response->withAddedHeader('X-RateLimit-Remaining', $remaining);
+        $response = $response->withAddedHeader('X-RateLimit-Reset', $reset_time);
 
         return $response;
     }
