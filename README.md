@@ -107,7 +107,6 @@ Example API Endpoints:
      - `name` (string) - The name of the user.
      - `email` (string) - The email address of the user.
      - `password` (string) - The password of the user account.
-     - `password_confirmation` (string) - The confirmation of the password.
 
    - Example Request:
 
@@ -117,7 +116,6 @@ Example API Endpoints:
        "name": "John Doe",
        "email": "john@doe.com",
        "password": "example_password",
-       "password_confirmation": "example_password"
      }
      ```
 
@@ -184,7 +182,7 @@ Example API Endpoints:
 
      - Status: `200 OK`
      - Content-Type: `application/json`
-    
+
    - Example Response:
 
      ```json
@@ -203,7 +201,7 @@ Example API Endpoints:
    - Request Header:
 
      - `Authorization` (Bearer) - The access token.
-       
+
    - Request Body:
 
      - `title` (string) - The title of the todo item.
@@ -241,7 +239,7 @@ Example API Endpoints:
    - Request Header:
 
      - `Authorization` (Bearer) - The access token.
-       
+
    - Request Body:
 
      - `title` (string) - The title of the todo item.
@@ -282,7 +280,7 @@ Example API Endpoints:
    - Request Header:
 
      - `Authorization` (Bearer) - The access token.
-       
+
    - Response:
 
      - Status: `204 No Content`
@@ -335,7 +333,6 @@ Example API Endpoints:
        - `limit` - Specifies the maximum number of items to be returned in the response.
        - `status` - Used for filtering to-do items based on their status.
        - `sort` - Used for sorting to-do items based on spesific field.
-
 
 ## Authentication
 
