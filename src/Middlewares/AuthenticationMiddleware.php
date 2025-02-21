@@ -74,6 +74,8 @@ class AuthenticationMiddleware implements MiddlewareInterface
             return $response;
         }
 
+        $request = $request->withAttribute('decoded_token_data', $decoded);
+
         return $handler->handle($request);
     }
 }

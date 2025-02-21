@@ -54,7 +54,7 @@ class TodoController
     public function index(Request $request, Response $response, array $args): Response
     {
         // Get the user ID from the JWT token.
-        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $decoded = $request->getAttribute('decoded_token_data');
         $user_id = $decoded['sub'];
 
         // Get the total count of todos for the user.
@@ -97,7 +97,7 @@ class TodoController
     public function create(Request $request, Response $response, array $args): Response
     {
         // Get the user ID from the JWT token and the request data.
-        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $decoded = $request->getAttribute('decoded_token_data');
         $data = $request->getParsedBody() ?? [];
         $data['user_id'] = $decoded['sub'];
 
@@ -128,7 +128,7 @@ class TodoController
     public function show(Request $request, Response $response, array $args): Response
     {
         // Get the user ID from the JWT token.
-        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $decoded = $request->getAttribute('decoded_token_data');
         $user_id = $decoded['sub'];
 
         $todo = $this->model->get($args['id'], $user_id);
@@ -158,7 +158,7 @@ class TodoController
     public function update(Request $request, Response $response, array $args): Response
     {
         // Get the user ID from the JWT token and the request data.
-        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $decoded = $request->getAttribute('decoded_token_data');
         $data = $request->getParsedBody() ?? [];
         $data['user_id'] = $decoded['sub'];
 
@@ -204,7 +204,7 @@ class TodoController
     public function delete(Request $request, Response $response, array $args): Response
     {
         // Get the user ID from the JWT token.
-        $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
+        $decoded = $request->getAttribute('decoded_token_data');
         $user_id = $decoded['sub'];
 
         try {
