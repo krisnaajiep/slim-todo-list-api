@@ -76,7 +76,7 @@ How to install:
    DB_PORT=3306
    DB_USER=root
    DB_PASS=
-   DB_NAME=todo
+   DB_NAME=todo_list_api
    ```  
 
 5. Generate JWT secret key
@@ -87,7 +87,19 @@ How to install:
 
 6. [Start MySQL server](https://phoenixnap.com/kb/start-mysql-server)
 
-7. Run the PHP built-in Web Server
+7. Create new database
+
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE todo_list_api;"
+   ```
+
+8. Import `todo_list_api.sql` file
+
+   ```bash
+   mysql -u root -p todo_list_api < todo_list_api.sql
+   ```
+
+9. Run the PHP built-in Web Server
 
    ```bash
    cd public
