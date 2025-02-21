@@ -79,13 +79,11 @@ final class AuthControllerTest extends TestCase
 
         if ($case === 'invalid registration data') {
             $this->assertArrayHasKey('errors', $result);
-            $this->assertCount(3, $result['errors']);
+            $this->assertCount(2, $result['errors']);
             $this->assertArrayHasKey('name', $result['errors']);
             $this->assertArrayHasKey('email', $result['errors']);
-            $this->assertArrayHasKey('password_confirmation', $result['errors']);
             $this->assertSame('name field is required.', $result['errors']['name']);
             $this->assertSame('email input must be a valid email address.', $result['errors']['email']);
-            $this->assertSame("password_confirmation doesn't match.", $result['errors']['password_confirmation']);
             $this->assertSame(400, $response->getStatusCode());
         } else {
             $this->assertArrayHasKey('message', $result);

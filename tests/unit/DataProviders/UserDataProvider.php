@@ -25,7 +25,6 @@ final class UserDataProvider
                     'name' => 'John Doe',
                     'email' => 'john@doe.com',
                     'password' => 'password',
-                    'password_confirmation' => 'password'
                 ],
             ],
         ];
@@ -39,7 +38,6 @@ final class UserDataProvider
                     'name' => '',
                     'email' => 'johndoe.com',
                     'password' => 'password',
-                    'password_confirmation' => 'drowsapp'
                 ],
                 'invalid registration data'
             ],
@@ -48,7 +46,6 @@ final class UserDataProvider
                     'name' => 'John Doe',
                     'email' => 'john@doe.com',
                     'password' => 'password',
-                    'password_confirmation' => 'password'
                 ],
                 'duplicate email'
             ],

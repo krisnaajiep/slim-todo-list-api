@@ -31,8 +31,8 @@ final class TodoControllerTest extends TestCase
     {
         $id = rand(1, 100);
 
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => rand(1, 100)
             ]);
@@ -67,8 +67,8 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'invalidCreationProvider')]
     public function testFailsToCreate(array $data): void
     {
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => rand(1, 100)
             ]);
@@ -95,8 +95,8 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'modificationProvider')]
     public function testUpdateSuccessfully(array $data, int $id): void
     {
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => $data['user_id']
             ]);
@@ -137,8 +137,8 @@ final class TodoControllerTest extends TestCase
     {
         $code = $id === 2 ? 404 : ($id === 1 ? 403 : 400);
 
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => 0
             ]);
@@ -180,8 +180,8 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'deletionProvider')]
     public function testDeleteSuccessfully(int $id, int $user_id): void
     {
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => $user_id
             ]);
@@ -202,8 +202,8 @@ final class TodoControllerTest extends TestCase
     {
         $code = $id === 2 ? 404 : 403;
 
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => $user_id
             ]);
@@ -222,8 +222,8 @@ final class TodoControllerTest extends TestCase
     #[DataProviderExternal(TodoDataProvider::class, 'retrievalProvider')]
     public function testGetToDoItems(array $data, array $query_params, int $user_id): void
     {
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => $user_id
             ]);
@@ -323,8 +323,8 @@ final class TodoControllerTest extends TestCase
     {
         $id = 2;
 
-        $this->jwt->expects($this->once())
-            ->method('decode')
+        $this->request->expects($this->once())
+            ->method('getAttribute')
             ->willReturn([
                 'sub' => $user_id
             ]);
