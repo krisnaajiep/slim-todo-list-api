@@ -9,7 +9,6 @@ use App\Handlers\ShutdownHandler;
 use App\Handlers\HttpErrorHandler;
 use App\Middlewares\AuthenticationMiddleware;
 use App\Middlewares\ReturningJsonMiddleware;
-use App\Middlewares\JsonBodyParserMiddleware;
 use App\Middlewares\RateLimiterMiddleware;
 use App\Middlewares\ThrottlingMiddleware;
 use Slim\Factory\ServerRequestCreatorFactory;
@@ -35,6 +34,9 @@ $errorHandler = new HttpErrorHandler($callableResolver, $responseFactory);
 $shutdownHandler = new ShutdownHandler($request, $errorHandler, $displayErrorDetails);
 register_shutdown_function($shutdownHandler);
 
+// Parse json, form data and xml
+$app->addBodyParsingMiddleware();
+
 // Add Routing Middleware
 $app->addRoutingMiddleware();
 
@@ -44,7 +46,6 @@ $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 // Add Middlewares
 $app->add(new ReturningJsonMiddleware());
-$app->add(new JsonBodyParserMiddleware());
 $app->add(new RateLimiterMiddleware(new ResponseFactory(), 60, 60));
 $app->add(new ThrottlingMiddleware(1));
 $app->add(new TrailingSlash(trailingSlash: false));
