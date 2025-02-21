@@ -1,19 +1,10 @@
 <?php
 
-use App\Controllers\AuthController;
-use App\Controllers\TodoController;
 use Dotenv\Dotenv;
 use Slim\Factory\AppFactory;
-use Middlewares\TrailingSlash;
 use App\Handlers\ShutdownHandler;
 use App\Handlers\HttpErrorHandler;
-use App\Middlewares\AuthenticationMiddleware;
-use App\Middlewares\ReturningJsonMiddleware;
-use App\Middlewares\RateLimiterMiddleware;
-use App\Middlewares\ThrottlingMiddleware;
 use Slim\Factory\ServerRequestCreatorFactory;
-use Slim\Psr7\Factory\ResponseFactory;
-use Slim\Routing\RouteCollectorProxy;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -45,23 +36,11 @@ $errorMiddleware = $app->addErrorMiddleware($displayErrorDetails, false, false);
 $errorMiddleware->setDefaultErrorHandler($errorHandler);
 
 // Add Middlewares
-$app->add(new ReturningJsonMiddleware());
-$app->add(new RateLimiterMiddleware(new ResponseFactory(), 60, 60));
-$app->add(new ThrottlingMiddleware(1));
-$app->add(new TrailingSlash(trailingSlash: false));
+$middleware = require __DIR__ . '/../app/middleware.php';
+$middleware($app);
 
 // Add Routes
-$app->post('/register', [AuthController::class, 'register']);
-$app->post('/login', [AuthController::class, 'login']);
-$app->post('/refresh', [AuthController::class, 'refresh'])
-    ->add(new AuthenticationMiddleware(new ResponseFactory(), access: false));
-
-$app->group('/todos', function (RouteCollectorProxy $group) {
-    $group->post('', [TodoController::class, 'create']);
-    $group->put('/{id}', [TodoController::class, 'update']);
-    $group->delete('/{id}', [TodoController::class, 'delete']);
-    $group->get('', [TodoController::class, 'index']);
-    $group->get('/{id}', [TodoController::class, 'show']);
-})->add(new AuthenticationMiddleware(new ResponseFactory()));
+$routes = require __DIR__ . '/../app/routes.php';
+$routes($app);
 
 $app->run();
