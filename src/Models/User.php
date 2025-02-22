@@ -116,4 +116,21 @@ class User
             }
         }
     }
+
+    /**
+     * Finds a user by ID.
+     * 
+     * @param int $id The user ID.
+     * 
+     * @return array The user data.
+     */
+    public function find(int $id)
+    {
+        $this->db->prepare("SELECT EXISTS(SELECT 1 FROM {$this->table} WHERE id = :id) AS 'exists'");
+        $this->db->bindParam(':id', $id);
+
+        $user = $this->db->fetch();
+
+        return $user;
+    }
 }
