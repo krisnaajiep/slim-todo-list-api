@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\JWTHelper;
 use App\Models\Todo;
 use App\Validators\TodoValidator;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -24,22 +23,13 @@ class TodoController
     private Todo $model;
 
     /**
-     * The JWT helper instance for handling JWT token operations.
-     * 
-     * @var JWTHelper
-     */
-    private JWTHelper $jwt;
-
-    /**
      * Creates a new TodoController instance.
      * 
      * @param Todo|null $model The todo model instance for handling todo data operations.
-     * @param JWTHelper|null $jwt The JWT helper instance for handling JWT token operations.
      */
-    public function __construct(Todo $model = null, JWTHelper $jwt = null)
+    public function __construct(Todo $model = null)
     {
         $this->model = $model ?? new Todo();
-        $this->jwt = $jwt ?? new JWTHelper();
     }
 
     /**
