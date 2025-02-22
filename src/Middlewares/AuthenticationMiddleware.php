@@ -3,6 +3,7 @@
 namespace App\Middlewares;
 
 use App\JWTHelper;
+use App\Models\User;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -38,6 +39,13 @@ class AuthenticationMiddleware implements MiddlewareInterface
     private bool $access;
 
     /**
+     * The user model instance.
+     * 
+     * @var User
+     */
+    private User $model;
+
+    /**
      * Creates a new AuthenticationMiddleware instance.
      * 
      * @param ResponseFactoryInterface $responseFactory The response factory.
@@ -49,6 +57,7 @@ class AuthenticationMiddleware implements MiddlewareInterface
         $this->responseFactory = $responseFactory;
         $this->jwt = $jwt ?? new JWTHelper();
         $this->access = $access;
+        $this->model = new User();
     }
 
     /**
@@ -64,8 +73,11 @@ class AuthenticationMiddleware implements MiddlewareInterface
         // Decode the JWT token.
         $decoded = $this->jwt->decode($request->getHeaderLine('Authorization'));
 
+        // Find the user by the decoded token data.
+        $user = $this->model->find($decoded['sub'] ?? 0);
+
         // Check if the token is invalid or expired.
-        if (is_string($decoded) || $decoded['access'] !== $this->access) {
+        if (is_string($decoded) || $decoded['access'] !== $this->access || !$user['exists']) {
             $message = ['message' => is_string($decoded) && str_contains($decoded, 'Expired') ? $decoded : 'Unauthorized'];
 
             $response = $this->responseFactory->createResponse(401);
