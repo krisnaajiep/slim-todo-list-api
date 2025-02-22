@@ -6,7 +6,6 @@ use App\Models\Todo;
 use Slim\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use App\Controllers\TodoController;
-use App\JWTHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use Test\Unit\DataProviders\TodoDataProvider;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
@@ -14,14 +13,13 @@ use PHPUnit\Framework\Attributes\DataProviderExternal;
 final class TodoControllerTest extends TestCase
 {
     private ?TodoController $controller;
-    private $model, $request, $jwt;
+    private $model, $request;
     private ?Response $response;
 
     public function setUp(): void
     {
         $this->model = $this->createMock(Todo::class);
-        $this->jwt = $this->createMock(JWTHelper::class);
-        $this->controller = new TodoController($this->model, $this->jwt);
+        $this->controller = new TodoController($this->model);
         $this->request = $this->createMock(ServerRequestInterface::class);
         $this->response = new Response();
     }
