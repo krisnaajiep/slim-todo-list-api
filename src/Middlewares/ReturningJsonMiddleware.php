@@ -35,8 +35,10 @@ class ReturningJsonMiddleware implements MiddlewareInterface
     {
         $response = $handler->handle($request);
 
+        // Return JSON
         $response = $response->withAddedHeader('Content-Type', 'application/json');
 
+        // Rate Limit Headers
         $params = $request->getServerParams();
         $address = $params['REMOTE_ADDR'];
 
@@ -47,9 +49,10 @@ class ReturningJsonMiddleware implements MiddlewareInterface
         $remaining = $rate_limit[$address]['remaining'];
         $reset_time = $rate_limit[$address]['reset_time'];
 
-        $response = $response->withAddedHeader('X-RateLimit-Limit', $limit);
-        $response = $response->withAddedHeader('X-RateLimit-Remaining', $remaining);
-        $response = $response->withAddedHeader('X-RateLimit-Reset', $reset_time);
+        $response = $response
+            ->withHeader('X-RateLimit-Limit', $limit)
+            ->withHeader('X-RateLimit-Remaining', $remaining)
+            ->withHeader('X-RateLimit-Reset', $reset_time);
 
         return $response;
     }

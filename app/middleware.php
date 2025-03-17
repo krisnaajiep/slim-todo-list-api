@@ -3,12 +3,14 @@
 use Slim\App;
 use Middlewares\TrailingSlash;
 use Slim\Psr7\Factory\ResponseFactory;
+use App\Middlewares\CORSMiddleware;
 use App\Middlewares\TrimInputMiddleware;
 use App\Middlewares\ThrottlingMiddleware;
 use App\Middlewares\RateLimiterMiddleware;
 use App\Middlewares\ReturningJsonMiddleware;
 
 return function (App $app) {
+    $app->add(new CORSMiddleware(new ResponseFactory()));
     $app->add(new ReturningJsonMiddleware());
     $app->add(new TrimInputMiddleware());
 
