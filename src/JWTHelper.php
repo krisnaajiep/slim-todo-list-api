@@ -70,18 +70,9 @@ class JWTHelper
      * 
      * @return array|string The user data.
      */
-    public function decode(string $auth): array|string
+    public function decode(string $jwt): array|string
     {
         try {
-            $directives = explode(' ', $auth);
-            $scheme = $directives[0];
-            $jwt = $directives[1] ?? '';
-
-            // Check if the scheme is Bearer and the JWT token exists.
-            if ($scheme !== 'Bearer' || !$jwt) {
-                throw new \Exception();
-            }
-
             // Decode the JWT token.
             $decoded = JWT::decode($jwt, new Key($this->key, $this->alg));
 
