@@ -36,7 +36,9 @@ class ReturningJsonMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
 
         // Return JSON
-        $response = $response->withAddedHeader('Content-Type', 'application/json');
+        $response = $response
+            ->withAddedHeader('Content-Type', 'application/json')
+            ->withHeader('X-Content-Type-Options', 'nosniff');
 
         // Rate Limit Headers
         $params = $request->getServerParams();

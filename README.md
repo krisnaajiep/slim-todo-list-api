@@ -372,17 +372,18 @@ Each API response returns the following set of headers to help you identify your
 
 The following status codes are returned by the API depending on the success or failure of the request.
 
-| Status Code               | Description                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------------- |
-| 200 OK                    | The request was processed successfully.                                                      |
-| 201 Created               | The new resource was created successfully.                                                   |
-| 400 Bad Request           | The server could not understand the request due to invalid syntax.                           |
-| 401 Unauthorized          | Authentication is required or the access token is invalid.                                   |
-| 403 Forbidden             | Access to the requested resource is forbidden.                                               |
-| 404 Not Found             | The requested resource was not found.                                                        |
-| 409 Conflict              | Indicates a conflict between the request and the current state of a resource on a web server |
-| 429 Too Many Request      | The client has sent too many requests in a given amount of time (rate limiting).             |
-| 500 Internal Server Error | An unexpected server error occurred.                                                         |
+| Status Code                | Description                                                                                  |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| 200 OK                     | The request was processed successfully.                                                      |
+| 201 Created                | The new resource was created successfully.                                                   |
+| 400 Bad Request            | The server could not understand the request due to invalid syntax.                           |
+| 401 Unauthorized           | Authentication is required or the access token is invalid.                                   |
+| 403 Forbidden              | Access to the requested resource is forbidden.                                               |
+| 404 Not Found              | The requested resource was not found.                                                        |
+| 409 Conflict               | Indicates a conflict between the request and the current state of a resource on a web server |
+| 415 Unsupported Media Type | The media format of the requested data is not supported by the server.                       |
+| 429 Too Many Request       | The client has sent too many requests in a given amount of time (rate limiting).             |
+| 500 Internal Server Error  | An unexpected server error occurred.                                                         |
 
 ## Project Status
 
